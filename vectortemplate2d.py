@@ -519,19 +519,6 @@ class SuperRocket(VectorSprite):
         self.image0 = self.image.copy()
         self.rect = self.image.get_rect()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 class PygView(object):
     width = 0
     height = 0
@@ -618,8 +605,20 @@ class PygView(object):
         self.player1 =  Spaceship(warp_on_edge=True, pos=pygame.math.Vector2(PygView.width/2,-PygView.height/2))
         self.player2 =  Spaceship(warp_on_edge=True, pos=pygame.math.Vector2(PygView.width/2+100,-PygView.height/2))
 
-   
-   
+    def superschuss(self, player):
+        self.supertime = 0
+        v = pygame.math.Vector2(100,0)
+        v.rotate_ip(player.angle) 
+        v += player.move # adding speed of spaceship to rocket
+        # create a new vector (a copy, but not the same, as the pos vector of spaceship)
+        p = pygame.math.Vector2(player.pos.x, player.pos.y)
+        a = player.angle
+        # launch rocktet not from middle of spaceship, but from it's nose (rightmost point)
+        # we know that from middle of spaceship to right edge ("nose") is 25 pixel
+        t = pygame.math.Vector2(25,0)
+        t.rotate_ip(player.angle)
+        SuperRocket(pos=p+t, move=v, angle=a, bossnumber = player.number, damage = self.supertime * 2)
+
     def run(self):
         """The mainloop"""
         running = True
@@ -628,6 +627,7 @@ class PygView(object):
         self.snipertarget = None
         gameOver = False
         exittime = 0
+        self.supertime = 0
         while running:
             milliseconds = self.clock.tick(self.fps) #
             seconds = milliseconds / 1000
@@ -664,18 +664,16 @@ class PygView(object):
                         Rocket(pos=p+t1, move=v, angle=a,bossnumber = self.player1.number)
                     
                     # ---- shooting superrockets for player1 ----
+                    # press and hold 3 seconds 
                     if event.key == pygame.K_LSHIFT:
-                        v = pygame.math.Vector2(100,0)
-                        v.rotate_ip(self.player1.angle) 
-                        v += self.player1.move # adding speed of spaceship to rocket
-                        # create a new vector (a copy, but not the same, as the pos vector of spaceship)
-                        p = pygame.math.Vector2(self.player1.pos.x, self.player1.pos.y)
-                        a = self.player1.angle
-                        # launch rocktet not from middle of spaceship, but from it's nose (rightmost point)
-                        # we know that from middle of spaceship to right edge ("nose") is 25 pixel
-                        t = pygame.math.Vector2(25,0)
-                        t.rotate_ip(self.player1.angle)
-                        SuperRocket(pos=p+t, move=v, angle=a, bossnumber = self.player1.number)
+                        self.supertime = 0
+                        self.supertime += seconds
+                        if self.supertime > 3:
+                            self.superschuss(self.player1)
+                    else:
+                        if self.supertime > 0:
+                            self.superschuss(self.player1)
+                            self.supertime = 0 
                     # ---- shooting rockets for player2 ----
                     if event.key == pygame.K_SPACE:
                         v = pygame.math.Vector2(100,0)
