@@ -399,7 +399,6 @@ class VectorSprite(pygame.sprite.Sprite):
         # --------- lower edge ------------
         if self.pos.y   < -PygView.height:
             if self.kill_on_edge:
-                self.hitpoints = 0
                 self.kill()
             elif self.bounce_on_edge:
                 self.pos.y = -PygView.height
@@ -410,8 +409,13 @@ class VectorSprite(pygame.sprite.Sprite):
 class Spaceship(VectorSprite):
     
     def create_image(self):
-        self.image = pygame.Surface((50,50))
-        pygame.draw.polygon(self.image, (0,0,255), ((0,0),(50,25),(0,50),(25,25)))
+        self.image = pygame.Surface((100,100))
+        pygame.draw.polygon(self.image,(255,0,0),((80,20),(95,35),(80,45),(70,27)))
+        pygame.draw.polygon(self.image,(255,0,0),((80,80),(95,65),(80,55),(70,73)))
+      #  pygame.draw.polygon(self.image,(55,247,244),((25,35),(70,35),(70,40),(25,40)))
+        #pygame.draw.polygon(self.image,(255,0,0),((60,40),(70,60),(60,50),(60,40),(60,40)))
+        pygame.draw.circle(self.image,(0,0,255),(50,50),30)
+        
         self.image.set_colorkey((0,0,0))
         self.image.convert_alpha()
         self.image0 = self.image.copy()
