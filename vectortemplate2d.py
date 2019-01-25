@@ -420,6 +420,7 @@ class Spaceship(VectorSprite):
         self.image.convert_alpha()
         self.image0 = self.image.copy()
         self.rect = self.image.get_rect()
+        self.mass = 200
         
 
 
@@ -444,41 +445,60 @@ class Smoke(VectorSprite):
         c = min(255,c)
         self.color=(c,c,c)
 
-
-class Explosion(VectorSprite):
-
+class Zombie(VectorSprite):
+    
     def _overwrite_parameters(self):
-        self._layer = 2
-
+        # --- pos ----
+        a = random.randint(1,4)
+        if a==1:
+            # --- oben ---
+            y = -20
+            x = random.randint(0, PygView.width)
+        elif a == 2:
+            # ---- rechts ----
+            x = PygView.width - 20
+            y = random.randint(-PygView.height, 0)
+        elif a == 3:
+            #  --- unten ---
+            y = -PygView.height + 20
+            x = random.randint(0,PygView.width) 
+        else:
+            # --- links ---
+            y = random.randint(-PygView.height, 0)
+            x = 20
+        self.pos=pygame.math.Vector2(x,y)
+        # ---- move ---
+        # vector von self.pos zur mitte
+        mitte = pygame.math.Vector2(PygView.width / 2, - PygView.height / 2)
+        rechts = pygame.math.Vector2(1,0)
+        speed = random.randint(1, 15)
+        diff = mitte - self.pos
+        a = rechts.angle_to(diff)
+        rechts *= speed
+        #print("Recgts", rechts)
+        rechts.rotate_ip(a)
+        #print("mi, re, speed, diff, a", mitte, rechts, speed, diff, a)
+        
+        #x = random.randint(-10,10)
+        #y = random.randint(-50, -1)
+        self.move = rechts
+        #self.kill_on_edge = True
+        self.bounce_on_edge = True
+        self.max_age = random.randint(30,90)
+        self.radius = random.randint(10, 25)
+        self.hitpoints = self.radius * 25
+        self.mass = self.radius * 50
+            
     def create_image(self):
-        self.image=pygame.Surface((self.radius*2, self.radius*2))
-        pygame.draw.circle(self.image, (197, 37,  37),(self.radius, self.radius),  self.radius, 0)
-        r, g, b = self.color
-        for rad in range(5,66, 5):
-            if self.radius > rad:
-                if r != 0 and r != 255:
-                   r1 = (random.randint(rad-10,rad) + r) % 255
-                else:
-                    r1 = r
-                if g != 0 and g != 255:
-                    g1 = (random.randint(rad-10,rad) + g) % 255
-                else:
-                    g1 = g
-                if b != 0 and b != 255:
-                    b1 = (random.randint(rad-10,rad) + b) % 255
-                else:
-                    b1 = b
-                pygame.draw.circle(self.image, (r1,g1,b1), (self.radius, self.radius), self.radius-rad, 0)
+        #c = random.choice( (64,64,64), (128,128,128),        )
+        self.image = pygame.Surface((self.radius*2,self.radius*2))
+        pygame.draw.circle(self.image, (173,229,230),(self.radius,self.radius),self.radius )
         self.image.set_colorkey((0,0,0))
-        self.rect= self.image.get_rect()
+        self.image.convert_alpha()
+        self.image0 = self.image.copy()
+        self.rect = self.image.get_rect()
 
-    def update(self,seconds):
-         VectorSprite.update(self, seconds)
-         self.create_image()
-         self.rect=self.image.get_rect()
-         self.rect.center=(self.pos.x, self.pos.y)
-         self.radius+=1
-
+#class 
 class Rocket(VectorSprite):
 
 
@@ -586,6 +606,7 @@ class PygView(object):
         self.tracergroup = pygame.sprite.Group()
         self.mousegroup = pygame.sprite.Group()
         self.explosiongroup = pygame.sprite.Group()
+        self.enemygroup  = pygame.sprite.Group()
         self.rocketgroup = pygame.sprite.Group()
         self.playergroup = pygame.sprite.Group()
         Spaceship.groups = self.allgroup, self.playergroup
@@ -594,8 +615,8 @@ class PygView(object):
         SuperRocket.groups = self.allgroup, self.rocketgroup
         VectorSprite.groups = self.allgroup
         Flytext.groups = self.allgroup
-        Explosion.groups= self.allgroup, self.explosiongroup
-        
+        Zombie.groups = self.allgroup, self.enemygroup
+      
         
 
    
@@ -691,7 +712,8 @@ class PygView(object):
                         t = pygame.math.Vector2(25,0)
                         t.rotate_ip(self.player2.angle)
                         Rocket(pos=p+t, move=v, angle=a, bossnumber = self.player2.number)
-                
+                    if event.key == pygame.K_z:
+                        Zombie()
                 
                 
                 
@@ -699,7 +721,12 @@ class PygView(object):
                     #if event.key == pygame.K_r:
                     #    self.player1.move *= 0.1 # remove 90% of movement
                     
-   
+            
+            
+            #---- new zombies -----
+            if random.random() < 0.025:
+                Zombie()
+            
             # delete everything on screen
             self.screen.blit(self.background, (0, 0))
             
@@ -792,6 +819,41 @@ class PygView(object):
                     if r.bossnumber != p.number:
                         p.hitpoints -= r.damage
                         r.kill()
+            
+            # --------- collision detection between enemies and rocket -----
+            for e in self.enemygroup:
+                crashgroup = pygame.sprite.spritecollide(e, self.rocketgroup,
+                             False, pygame.sprite.collide_mask)
+                #print("collided!")
+                for r in crashgroup:
+                    e.hitpoints -= r.damage
+                    elastic_collision(r, e)
+                    r.kill()
+
+            # --------- collision detection between enemy and other enemy -----
+            for e in self.enemygroup:
+                crashgroup = pygame.sprite.spritecollide(e, self.enemygroup,
+                             False, pygame.sprite.collide_circle)
+                for e_other in crashgroup:
+                    elastic_collision(e,e_other)
+                    
+            # --------- collision detection between player and enemy -----
+            for p in self.playergroup:
+                crashgroup = pygame.sprite.spritecollide(p, self.enemygroup,
+                             False, pygame.sprite.collide_mask)
+                #print("collided!")
+                for e in crashgroup:
+                    p.hitpoints -= random.randint(3,6)
+                    e.hitpoints -= random.randint(5,10)
+                    elastic_collision(p,e)
+                    #e.kill()
+                    #p.kill()
+                                    
+            
+            
+            
+            
+            
             
             # ----------- clear, draw , update, flip -----------------
             self.allgroup.draw(self.screen)
