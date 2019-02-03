@@ -46,7 +46,7 @@ def elastic_collision(sprite1, sprite2):
            The sprites need the property .mass, .radius, pos.x pos.y, move.x, move.y
            by Leonard Michlmayr"""
         if sprite1.static and sprite2.static:
-            return 
+            return
         dirx = sprite1.pos.x - sprite2.pos.x
         diry = sprite1.pos.y - sprite2.pos.y
         sumofmasses = sprite1.mass + sprite2.mass
@@ -144,18 +144,18 @@ class Mouse(pygame.sprite.Sprite):
                          (35*w,0+y),(50*w,15*h+y),2)
             pygame.draw.line(self.image,(self.r-delta2,self.g,self.b),
                          (50*w,15*h+y),(65*w,0+y),2)
-    
+
             pygame.draw.line(self.image,(self.r-delta2,self.g,self.b),
                          (35*w,100*h-y),(50*w,85*h-y),2)
             pygame.draw.line(self.image,(self.r-delta2,self.g,self.b),
                          (50*w,85*h-y),(65*w,100*h-y),2)
-        # pointing right / left                 
+        # pointing right / left
         for x in (0,2,4):
             pygame.draw.line(self.image,(self.r-delta2,self.g,self.b),
                          (0+x,35*h),(15*w+x,50*h),2)
             pygame.draw.line(self.image,(self.r-delta2,self.g,self.b),
                          (15*w+x,50*h),(0+x,65*h),2)
-            
+
             pygame.draw.line(self.image,(self.r-delta2,self.g,self.b),
                          (100*w-x,35*h),(85*w-x,50*h),2)
             pygame.draw.line(self.image,(self.r-delta2,self.g,self.b),
@@ -238,10 +238,10 @@ class VectorSprite(pygame.sprite.Sprite):
             self.set_angle(self.angle)
 
     def _overwrite_parameters(self):
-        """change parameters before create_image is called""" 
+        """change parameters before create_image is called"""
         pass
 
-    def _default_parameters(self, **kwargs):    
+    def _default_parameters(self, **kwargs):
         """get unlimited named arguments and turn them into attributes
            default values for missing keywords"""
 
@@ -377,7 +377,7 @@ class VectorSprite(pygame.sprite.Sprite):
                 self.pos.x = 0
                 self.move.x *= -1
             elif self.warp_on_edge:
-                self.pos.x = PygView.width 
+                self.pos.x = PygView.width
         # -------- upper edge -----
         if self.pos.y  > 0:
             if self.kill_on_edge:
@@ -387,7 +387,7 @@ class VectorSprite(pygame.sprite.Sprite):
                 self.move.y *= -1
             elif self.warp_on_edge:
                 self.pos.y = -PygView.height
-        # -------- right edge -----                
+        # -------- right edge -----
         if self.pos.x  > PygView.width:
             if self.kill_on_edge:
                 self.kill()
@@ -407,7 +407,7 @@ class VectorSprite(pygame.sprite.Sprite):
                 self.pos.y = 0
 
 class Spaceship(VectorSprite):
-    
+
     def create_image(self):
         self.image = pygame.Surface((100,100))
         pygame.draw.polygon(self.image,(255,0,0),((80,20),(95,35),(80,45),(70,27)))
@@ -415,13 +415,13 @@ class Spaceship(VectorSprite):
       #  pygame.draw.polygon(self.image,(55,247,244),((25,35),(70,35),(70,40),(25,40)))
         #pygame.draw.polygon(self.image,(255,0,0),((60,40),(70,60),(60,50),(60,40),(60,40)))
         pygame.draw.circle(self.image,(0,0,255),(50,50),30)
-        
+
         self.image.set_colorkey((0,0,0))
         self.image.convert_alpha()
         self.image0 = self.image.copy()
         self.rect = self.image.get_rect()
         self.mass = 200
-        
+
 
 
 class Smoke(VectorSprite):
@@ -446,7 +446,9 @@ class Smoke(VectorSprite):
         self.color=(c,c,c)
 
 class Zombie(VectorSprite):
-    
+    """generic zombie.
+       goes to middle of screen"""
+
     def _overwrite_parameters(self):
         # --- pos ----
         a = random.randint(1,4)
@@ -461,7 +463,7 @@ class Zombie(VectorSprite):
         elif a == 3:
             #  --- unten ---
             y = -PygView.height + 20
-            x = random.randint(0,PygView.width) 
+            x = random.randint(0,PygView.width)
         else:
             # --- links ---
             y = random.randint(-PygView.height, 0)
@@ -471,14 +473,14 @@ class Zombie(VectorSprite):
         # vector von self.pos zur mitte
         mitte = pygame.math.Vector2(PygView.width / 2, - PygView.height / 2)
         rechts = pygame.math.Vector2(1,0)
-        speed = random.randint(1, 15)
+        speed = random.randint(15, 30)
         diff = mitte - self.pos
         a = rechts.angle_to(diff)
         rechts *= speed
         #print("Recgts", rechts)
         rechts.rotate_ip(a)
         #print("mi, re, speed, diff, a", mitte, rechts, speed, diff, a)
-        
+
         #x = random.randint(-10,10)
         #y = random.randint(-50, -1)
         self.move = rechts
@@ -488,7 +490,7 @@ class Zombie(VectorSprite):
         self.radius = random.randint(10, 25)
         self.hitpoints = self.radius * 25
         self.mass = self.radius * 50
-            
+
     def create_image(self):
         #c = random.choice( (64,64,64), (128,128,128),        )
         self.image = pygame.Surface((self.radius*2,self.radius*2))
@@ -498,12 +500,102 @@ class Zombie(VectorSprite):
         self.image0 = self.image.copy()
         self.rect = self.image.get_rect()
 
-#class 
-class Rocket(VectorSprite):
+class Zombie_Berserker(Zombie):
+    """shoots around randomly without aiming.
+       runs around randomly"""
 
 
     def _overwrite_parameters(self):
-        self._layer = 1 
+        Zombie._overwrite_parameters(self)
+        self.p_shooting = 0.07
+
+
+    def create_image(self):
+        #c = random.choice( (64,64,64), (128,128,128),        )
+        self.image = pygame.Surface((self.radius*2,self.radius*2))
+        pygame.draw.circle(self.image, (174,255,0),(self.radius,self.radius),self.radius )
+        self.image.set_colorkey((0,0,0))
+        self.image.convert_alpha()
+        self.image0 = self.image.copy()
+        self.rect = self.image.get_rect()
+
+
+    def update(self, seconds):
+        VectorSprite.update(self, seconds)
+        #casual = random.randint(1,2)
+        # richtungswechsel
+  #      print(self.time_wait)
+
+        if random.random() < 0.02:
+                self.move.rotate_ip(random.randint(0,360))
+        # ballern
+        if random.random() < self.p_shooting:
+            v = pygame.math.Vector2(100,0)
+            a = random.randint(0,360)
+            v.rotate_ip(a)
+            v += self.move # adding speed of spaceship to rocket
+            # create a new vector (a copy, but not the same, as the pos vector of spaceship)
+            p = pygame.math.Vector2(self.pos.x, self.pos.y)
+            # launch rocktet not from middle of spaceship, but from it's nose (rightmost point)
+            # we know that from middle of spaceship to right edge ("nose") is 25 pixel
+            #t = pygame.math.Vector2(-25,25)
+            #t.rotate_ip(self.player1.angle)
+            #t1 = pygame.math.Vector2(-25,-25)
+            #t1.rotate_ip(self.player1.angle)
+            #Rocket(pos=p+t, move=v, angle=a,bossnumber = self.player1.number)
+            Rocket_Enemy(pos=p, move=v, angle=a, bossnumber = self.number, max_distance=150)
+            #Rocket_Enemy(pos=p, move=v, angle=a, bossnumber = z.number)
+        if random.random() < 0.01:
+            print("alt", self.p_shooting)
+            self.p_shooting *= 1.1
+            print("neu",self.p_shooting)
+        #self.time_wait += 0.1
+
+
+        #if self.time_wait > 0.3:
+        #    self.time_wait = 0.01
+
+
+        #else:
+        #    self.x += 100
+#class
+
+class Zombie_Warrior(Zombie):
+    
+    def create_image(self):
+        #c = random.choice( (64,64,64), (128,128,128),        )
+        self.image = pygame.Surface((self.radius*2,self.radius*2))
+        pygame.draw.circle(self.image, (255,0,0),(self.radius,self.radius),self.radius )
+        self.image.set_colorkey((0,0,0))
+        self.image.convert_alpha()
+        self.image0 = self.image.copy()
+        self.rect = self.image.get_rect()
+    
+    
+    def update(self, seconds):
+        VectorSprite.update(self, seconds)
+        # --- einen zufälligen Player verfolgen ----
+        players = []
+        for nr in [0,1]:
+            if nr in VectorSprite.numbers:
+                 players.append(VectorSprite.numbers[nr])
+        
+        if len(players) > 0 and random.random() < 0.01:
+            target = random.choice(players)     
+            diffvector =  target.pos - self.pos
+            print("new move:", diffvector, self.pos, target.pos)
+            diffvector.normalize_ip() 
+            self.move = diffvector * 100
+            
+            
+    
+
+
+class Rocket_Enemy(VectorSprite):
+
+
+    def _overwrite_parameters(self):
+        self._layer = 1
         self.kill_on_edge = True
         self.damage = 1
 
@@ -512,20 +604,58 @@ class Rocket(VectorSprite):
         self.image = pygame.Surface((10,5))
         #pygame.draw.rect(self.image, (255,255,0), (0,2, 8,3),0)
         #pygame.draw.line(self.image, (220,220,0), (0,3),(10,3),2)
-        pygame.draw.polygon(self.image, (255,255,0), 
+        pygame.draw.polygon(self.image, (1,1,1),
                             [(0,0), (7,0), (9,2), (9,3), (7, 4), (0,4)]
-                           ) 
+                           )
         #self.image.fill((255,255,0))
         self.image.set_colorkey((0,0,0))
         self.image.convert_alpha()
         self.image0 = self.image.copy()
         self.rect = self.image.get_rect()
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class Rocket(VectorSprite):
+
+
+    def _overwrite_parameters(self):
+        self._layer = 1
+        self.kill_on_edge = True
+        self.damage = 1
+
+    def create_image(self):
+        #self.image = PygView.images["bullet"]
+        self.image = pygame.Surface((10,5))
+        #pygame.draw.rect(self.image, (255,255,0), (0,2, 8,3),0)
+        #pygame.draw.line(self.image, (220,220,0), (0,3),(10,3),2)
+        pygame.draw.polygon(self.image, (255,255,0),
+                            [(0,0), (7,0), (9,2), (9,3), (7, 4), (0,4)]
+                           )
+        #self.image.fill((255,255,0))
+        self.image.set_colorkey((0,0,0))
+        self.image.convert_alpha()
+        self.image0 = self.image.copy()
+        self.rect = self.image.get_rect()
+
+
 class SuperRocket(VectorSprite):
 
 
     def _overwrite_parameters(self):
-        self._layer = 1 
+        self._layer = 1
         self.kill_on_edge = True
         self.damage = 3
 
@@ -534,9 +664,9 @@ class SuperRocket(VectorSprite):
         self.image = pygame.Surface((20,8))
         #pygame.draw.rect(self.image, (255,255,0), (0,2, 8,3),0)
         #pygame.draw.line(self.image, (220,220,0), (0,3),(10,3),2)
-        pygame.draw.polygon(self.image, (25,25,25), 
+        pygame.draw.polygon(self.image, (25,25,25),
                             [(0,0), (15,0), (20,4), (15,8), (0, 8), (0,0)]
-                           ) 
+                           )
         #self.image.fill((255,255,0))
         self.image.set_colorkey((0,0,0))
         self.image.convert_alpha()
@@ -586,7 +716,7 @@ class PygView(object):
         self.loadbackground()
 
     def loadbackground(self):
-        
+
         try:
             self.background = pygame.image.load(os.path.join("data",
                  self.backgroundfilenames[PygView.wave %
@@ -594,11 +724,11 @@ class PygView(object):
         except:
             self.background = pygame.Surface(self.screen.get_size()).convert()
             self.background.fill((255,255,255)) # fill background white
-            
+
         self.background = pygame.transform.scale(self.background,
                           (PygView.width,PygView.height))
         self.background.convert()
-        
+
 
     def paint(self):
         """painting on the surface and create sprites"""
@@ -608,24 +738,28 @@ class PygView(object):
         self.explosiongroup = pygame.sprite.Group()
         self.enemygroup  = pygame.sprite.Group()
         self.rocketgroup = pygame.sprite.Group()
+        self.rocketenemygroup = pygame.sprite.Group()
         self.playergroup = pygame.sprite.Group()
         Spaceship.groups = self.allgroup, self.playergroup
         Mouse.groups = self.allgroup, self.mousegroup
         Rocket.groups = self.allgroup, self.rocketgroup
+        Rocket_Enemy.groups = self.allgroup, self.rocketenemygroup
         SuperRocket.groups = self.allgroup, self.rocketgroup
         VectorSprite.groups = self.allgroup
         Flytext.groups = self.allgroup
+        Zombie_Warrior.groups = self.allgroup, self.enemygroup
         Zombie.groups = self.allgroup, self.enemygroup
-      
-        
+        Zombie_Berserker.group = self.allgroup , self.enemygroup
 
-   
+
+
+
         # ------ player1,2,3: mouse, keyboard, joystick ---
-        self.mouse1 = Mouse(control="mouse", color=(255,0,0))
-        self.mouse2 = Mouse(control='keyboard1', color=(255,255,0))
-        self.mouse3 = Mouse(control="keyboard2", color=(255,0,255))
-        self.mouse4 = Mouse(control="joystick1", color=(255,128,255))
-        self.mouse5 = Mouse(control="joystick2", color=(255,255,255))
+        #self.mouse1 = Mouse(control="mouse", color=(255,0,0))
+        #self.mouse2 = Mouse(control='keyboard1', color=(255,255,0))
+        #self.mouse3 = Mouse(control="keyboard2", color=(255,0,255))
+        #self.mouse4 = Mouse(control="joystick1", color=(255,128,255))
+        #self.mouse5 = Mouse(control="joystick2", color=(255,255,255))
 
         self.player1 =  Spaceship(warp_on_edge=True, pos=pygame.math.Vector2(PygView.width/2,-PygView.height/2))
         self.player2 =  Spaceship(warp_on_edge=True, pos=pygame.math.Vector2(PygView.width/2+100,-PygView.height/2))
@@ -633,7 +767,7 @@ class PygView(object):
     def superschuss(self, player):
         self.supertime = 0
         v = pygame.math.Vector2(100,0)
-        v.rotate_ip(player.angle) 
+        v.rotate_ip(player.angle)
         v += player.move # adding speed of spaceship to rocket
         # create a new vector (a copy, but not the same, as the pos vector of spaceship)
         p = pygame.math.Vector2(player.pos.x, player.pos.y)
@@ -643,6 +777,9 @@ class PygView(object):
         t = pygame.math.Vector2(25,0)
         t.rotate_ip(player.angle)
         SuperRocket(pos=p+t, move=v, angle=a, bossnumber = player.number, damage = self.supertime * 2)
+
+
+
 
     def run(self):
         """The mainloop"""
@@ -654,6 +791,7 @@ class PygView(object):
         exittime = 0
         self.supertime = 0
         while running:
+     
             milliseconds = self.clock.tick(self.fps) #
             seconds = milliseconds / 1000
             self.playtime += seconds
@@ -667,6 +805,7 @@ class PygView(object):
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+
                 # ------- pressed and released key ------
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
@@ -674,7 +813,7 @@ class PygView(object):
                     # ---- shooting rockets for player1 ----
                     if event.key == pygame.K_TAB:
                         v = pygame.math.Vector2(100,0)
-                        v.rotate_ip(self.player1.angle) 
+                        v.rotate_ip(self.player1.angle)
                         v += self.player1.move # adding speed of spaceship to rocket
                         # create a new vector (a copy, but not the same, as the pos vector of spaceship)
                         p = pygame.math.Vector2(self.player1.pos.x, self.player1.pos.y)
@@ -687,9 +826,9 @@ class PygView(object):
                         t1.rotate_ip(self.player1.angle)
                         Rocket(pos=p+t, move=v, angle=a,bossnumber = self.player1.number)
                         Rocket(pos=p+t1, move=v, angle=a,bossnumber = self.player1.number)
-                    
+
                     # ---- shooting superrockets for player1 ----
-                    # press and hold 3 seconds 
+                    # press and hold 3 seconds
                     if event.key == pygame.K_LSHIFT:
                         self.supertime = 0
                         self.supertime += seconds
@@ -698,11 +837,11 @@ class PygView(object):
                     else:
                         if self.supertime > 0:
                             self.superschuss(self.player1)
-                            self.supertime = 0 
+                            self.supertime = 0
                     # ---- shooting rockets for player2 ----
                     if event.key == pygame.K_SPACE:
                         v = pygame.math.Vector2(100,0)
-                        v.rotate_ip(self.player2.angle) 
+                        v.rotate_ip(self.player2.angle)
                         v += self.player1.move # adding speed of spaceship to rocket
                         # create a new vector (a copy, but not the same, as the pos vector of spaceship)
                         p = pygame.math.Vector2(self.player2.pos.x, self.player2.pos.y)
@@ -714,35 +853,45 @@ class PygView(object):
                         Rocket(pos=p+t, move=v, angle=a, bossnumber = self.player2.number)
                     if event.key == pygame.K_z:
                         Zombie()
-                
-                
-                
+
+
+
                     # ---- stop movement for self.player1 -----
                     #if event.key == pygame.K_r:
                     #    self.player1.move *= 0.1 # remove 90% of movement
-                    
-            
-            
+
+            # ---- new bullets for enemies ----
+            #for z in self.enemygroup:
+
+
+
+
+
+
             #---- new zombies -----
             if random.random() < 0.025:
                 Zombie()
+                Zombie_Berserker()
             
+            if random.random() < 0.01:    
+                Zombie_Warrior()
+
             # delete everything on screen
             self.screen.blit(self.background, (0, 0))
-            
+
             # ------ move indicator for self.player1 -----
             pygame.draw.circle(self.screen, (0,255,0), (100,100), 100,1)
             glitter = (0, random.randint(128, 255), 0)
-            pygame.draw.line(self.screen, glitter, (100,100), 
+            pygame.draw.line(self.screen, glitter, (100,100),
                             (100 + self.player1.move.x, 100 - self.player1.move.y))
-            
-            
+
+
             # --- line from eck to mouse ---
-            pygame.draw.line(self.screen, (random.randint(200,250),0,0), (self.player1.pos.x, -self.player1.pos.y), (self.mouse1.x, self.mouse1.y))
+            #pygame.draw.line(self.screen, (random.randint(200,250),0,0), (self.player1.pos.x, -self.player1.pos.y), (self.mouse1.x, self.mouse1.y))
 
             # ------------ pressed keys ------
             pressed_keys = pygame.key.get_pressed()
-            
+
 
             # if pressed_keys[pygame.K_LSHIFT]:
             # ---- movement for player1 ----
@@ -758,9 +907,9 @@ class PygView(object):
                 v = pygame.math.Vector2(1,0)
                 v.rotate_ip(self.player1.angle)
                 self.player1.move += -v
-           
+
             # if pressed_keys[pygame.K_LSHIFT]:
-            # ---- movement for player2 ----             
+            # ---- movement for player2 ----
             if pressed_keys[pygame.K_LEFT]:
                 self.player2.rotate(3)
             if pressed_keys[pygame.K_RIGHT]:
@@ -773,39 +922,39 @@ class PygView(object):
                 v = pygame.math.Vector2(1,0)
                 v.rotate_ip(self.player2.angle)
                 self.player2.move += -v
-    
-            
+
+
             # ------ mouse handler ------
-            left,middle,right = pygame.mouse.get_pressed()
+           # left,middle,right = pygame.mouse.get_pressed()
             #if oldleft and not left:
             #    self.launchRocket(pygame.mouse.get_pos())
             #if right:
             #    self.launchRocket(pygame.mouse.get_pos())
-            oldleft, oldmiddle, oldright = left, middle, right
+            #oldleft, oldmiddle, oldright = left, middle, right
 
             # ------ joystick handler -------
-            mouses = [self.mouse4, self.mouse5]
-            for number, j in enumerate(self.joysticks):
-                if number == 0:
-                   x = j.get_axis(0)
-                   y = j.get_axis(1)
-                   mouses[number].x += x * 20 # *2 
-                   mouses[number].y += y * 20 # *2 
-                   buttons = j.get_numbuttons()
-                   for b in range(buttons):
-                       pushed = j.get_button( b )
+            #mouses = [self.mouse4, self.mouse5]
+            #for number, j in enumerate(self.joysticks):
+            #    if number == 0:
+            #       x = j.get_axis(0)
+            #       y = j.get_axis(1)
+            #       mouses[number].x += x * 20 # *2
+            #       mouses[number].y += y * 20 # *2
+            #       buttons = j.get_numbuttons()
+            #       for b in range(buttons):
+            #           pushed = j.get_button( b )
                        #if b == 0 and pushed:
                        #        self.launchRocket((mouses[number].x, mouses[number].y))
                        #elif b == 1 and pushed:
-                       #    if not self.mouse4.pushed: 
+                       #    if not self.mouse4.pushed:
                        #        self.launchRocket((mouses[number].x, mouses[number].y))
                        #        mouses[number] = True
                        #elif b == 1 and not pushed:
                        #    mouses[number] = False
-            pos1 = pygame.math.Vector2(pygame.mouse.get_pos())
-            pos2 = self.mouse2.rect.center
-            pos3 = self.mouse3.rect.center
-            
+            #pos1 = pygame.math.Vector2(pygame.mouse.get_pos())
+            #pos2 = self.mouse2.rect.center
+            #pos3 = self.mouse3.rect.center
+
             # write text below sprites
             write(self.screen, "FPS: {:8.3}".format(
                 self.clock.get_fps() ), x=10, y=10)
@@ -819,7 +968,22 @@ class PygView(object):
                     if r.bossnumber != p.number:
                         p.hitpoints -= r.damage
                         r.kill()
-            
+
+            # --------- collision detection between player and enemy_rocket -----
+            for r in self.rocketenemygroup:
+                crashgroup = pygame.sprite.spritecollide(r, self.playergroup,
+                False, pygame.sprite.collide_mask)
+                                                                                
+                for p in crashgroup:
+                    p.hitpoints -= 0.5
+                
+
+
+
+
+
+
+
             # --------- collision detection between enemies and rocket -----
             for e in self.enemygroup:
                 crashgroup = pygame.sprite.spritecollide(e, self.rocketgroup,
@@ -829,6 +993,7 @@ class PygView(object):
                     e.hitpoints -= r.damage
                     elastic_collision(r, e)
                     r.kill()
+                    e.kill()
 
             # --------- collision detection between enemy and other enemy -----
             for e in self.enemygroup:
@@ -836,7 +1001,7 @@ class PygView(object):
                              False, pygame.sprite.collide_circle)
                 for e_other in crashgroup:
                     elastic_collision(e,e_other)
-                    
+
             # --------- collision detection between player and enemy -----
             for p in self.playergroup:
                 crashgroup = pygame.sprite.spritecollide(p, self.enemygroup,
@@ -848,30 +1013,45 @@ class PygView(object):
                     elastic_collision(p,e)
                     #e.kill()
                     #p.kill()
-                                    
-            
-            
-            
-            
-            
-            
+
+            # --------- collision detection player1 and player2  -----
+            for p in self.playergroup:
+                crashgroup = pygame.sprite.spritecollide(p, self.playergroup,
+                             False, pygame.sprite.collide_mask)
+                #print("collided!")
+                for r in crashgroup:
+                    if p.number < r.number:
+                        #e.hitpoints -= r.damage
+                        elastic_collision(r, p)
+                        # r.kill()
+
+    
+
             # ----------- clear, draw , update, flip -----------------
             self.allgroup.draw(self.screen)
 
-            
+            # ---- move vectors for caesare ---
+
+        #    for s in self.allgroup:
+         #       print(s.pos)
+          #      x1, y1 = s.pos.x, -s.pos.y
+           #     ab = s.pos + s.move
+            #    x2, y2 = ab.x, -ab.y
+             #   pygame.draw.line(self.screen, (0,0,64), (x1,y1), (x2, y2))
+
             # --- Martins verbesserter Mousetail -----
-            for mouse in self.mousegroup:
-                if len(mouse.tail)>2:
-                    for a in range(1,len(mouse.tail)):
-                        r,g,b = mouse.color
-                        pygame.draw.line(self.screen,(r-a,g,b),
-                                     mouse.tail[a-1],
-                                     mouse.tail[a],10-a*10//10)
-            
+            #for mouse in self.mousegroup:
+            #    if len(mouse.tail)>2:
+            #        for a in range(1,len(mouse.tail)):
+            #            r,g,b = mouse.color
+            #            pygame.draw.line(self.screen,(r-a,g,b),
+            #                         mouse.tail[a-1],
+            #                         mouse.tail[a],10-a*10//10)
+
             # -------- next frame -------------
             pygame.display.flip()
         #-----------------------------------------------------
-        pygame.mouse.set_visible(True)    
+        pygame.mouse.set_visible(True)
         pygame.quit()
 
 if __name__ == '__main__':
