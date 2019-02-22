@@ -73,6 +73,25 @@ def elastic_collision(sprite1, sprite2):
                 sprite1.move.x -= 2 * dirx * cdp
                 sprite1.move.y -= 2 * diry * cdp
 
+class Game:
+    menuitems = []
+    mainmenu = ["play", "options", "credits", "upgrade player1", "upgrade player2", "quit"]
+    optionsmenu = ["audio", "video", "language", "back"]
+    upgrademenu = ["speed", "health", "shots", "damage", "back"]
+    languagemenu = ["english","italian","german","back"]
+    #languageitalianmenu = ["inglese","italiano","tedesco","indietro"]
+    italiano = {"play":"gioca", "options":"opzioni", "credits":"crediti", "upgrade player1":"potenzia player1",
+                "upgrade player2":"potenzia player2","quit":"esci", "audio":"audio", "video":"video", 
+                 "language":"lingua","back":"indietro","speed":"velocita","health":"vita",
+                 "shots":"proiettili","damage":"danno","german":"tedesco","english":"inglese",
+                 "italian":"italiano" }
+    deutsch = {"play":"Spiel starten", "options":"Optionen", "credits":"Mitwirkende", 
+                "upgrade player1":  "Upgrade player1", "upgrade player2":"Upgrade player2","quit":"Ende",
+                "audio":"Ton","video":"Grafik","language":"Sprache","back":"Zurück",
+                "speed":"Geschwindigkeit","health":"Leben","shots":"Kugeln","damage":"Schaden",
+                "german":"Deutsch","english":"English","italian":"Italienisch"}
+    
+
 class Flytext(pygame.sprite.Sprite):
     def __init__(self, x, y, text="hallo", color=(255, 0, 0),
                  dx=0, dy=-50, duration=2, acceleration_factor = 1.0, delay = 0, fontsize=22):
@@ -201,12 +220,12 @@ class Mouse(pygame.sprite.Sprite):
             pass
         if self.x < 0:
             self.x = 0
-        elif self.x > PygView.width:
-            self.x = PygView.width
+        elif self.x > Zviewer.width:
+            self.x = Zviewer.width
         if self.y < 0:
             self.y = 0
-        elif self.y > PygView.height:
-            self.y = PygView.height
+        elif self.y > Zviewer.height:
+            self.y = Zviewer.height
         self.tail.insert(0,(self.x,self.y))
         self.tail = self.tail[:128]
         self.rect.center = self.x, self.y
@@ -254,7 +273,7 @@ class VectorSprite(pygame.sprite.Sprite):
         if "static" not in kwargs:
             self.static = False
         if "pos" not in kwargs:
-            self.pos = pygame.math.Vector2(random.randint(0, PygView.width),-50)
+            self.pos = pygame.math.Vector2(random.randint(0, Zviewer.width),-50)
         if "move" not in kwargs:
             self.move = pygame.math.Vector2(0,0)
         if "radius" not in kwargs:
@@ -377,7 +396,7 @@ class VectorSprite(pygame.sprite.Sprite):
                 self.pos.x = 0
                 self.move.x *= -1
             elif self.warp_on_edge:
-                self.pos.x = PygView.width
+                self.pos.x = Zviewer.width
         # -------- upper edge -----
         if self.pos.y  > 0:
             if self.kill_on_edge:
@@ -386,28 +405,34 @@ class VectorSprite(pygame.sprite.Sprite):
                 self.pos.y = 0
                 self.move.y *= -1
             elif self.warp_on_edge:
-                self.pos.y = -PygView.height
+                self.pos.y = -Zviewer.height
         # -------- right edge -----
-        if self.pos.x  > PygView.width:
+        if self.pos.x  > Zviewer.width:
             if self.kill_on_edge:
                 self.kill()
             elif self.bounce_on_edge:
-                self.pos.x = PygView.width
+                self.pos.x = Zviewer.width
                 self.move.x *= -1
             elif self.warp_on_edge:
                 self.pos.x = 0
         # --------- lower edge ------------
-        if self.pos.y   < -PygView.height:
+        if self.pos.y   < -Zviewer.height:
             if self.kill_on_edge:
                 self.kill()
             elif self.bounce_on_edge:
-                self.pos.y = -PygView.height
+                self.pos.y = -Zviewer.height
                 self.move.y *= -1
             elif self.warp_on_edge:
                 self.pos.y = 0
 
-class Spaceship(VectorSprite):
+class Player(VectorSprite):
 
+
+    def _overwrite_parameters(self):
+        self.speed = 10
+        self.damage = 1
+        self.shots = 1
+        
     def create_image(self):
         self.image = pygame.Surface((100,100))
         pygame.draw.polygon(self.image,(255,0,0),((80,20),(95,35),(80,45),(70,27)))
@@ -455,23 +480,23 @@ class Zombie(VectorSprite):
         if a==1:
             # --- oben ---
             y = -20
-            x = random.randint(0, PygView.width)
+            x = random.randint(0, Zviewer.width)
         elif a == 2:
             # ---- rechts ----
-            x = PygView.width - 20
-            y = random.randint(-PygView.height, 0)
+            x = Zviewer.width - 20
+            y = random.randint(-Zviewer.height, 0)
         elif a == 3:
             #  --- unten ---
-            y = -PygView.height + 20
-            x = random.randint(0,PygView.width)
+            y = -Zviewer.height + 20
+            x = random.randint(0,Zviewer.width)
         else:
             # --- links ---
-            y = random.randint(-PygView.height, 0)
+            y = random.randint(-Zviewer.height, 0)
             x = 20
         self.pos=pygame.math.Vector2(x,y)
         # ---- move ---
         # vector von self.pos zur mitte
-        mitte = pygame.math.Vector2(PygView.width / 2, - PygView.height / 2)
+        mitte = pygame.math.Vector2(Zviewer.width / 2, - Zviewer.height / 2)
         rechts = pygame.math.Vector2(1,0)
         speed = random.randint(15, 30)
         diff = mitte - self.pos
@@ -561,7 +586,7 @@ class Zombie_Berserker(Zombie):
 #class
 
 class Zombie_Warrior(Zombie):
-    
+
     def create_image(self):
         #c = random.choice( (64,64,64), (128,128,128),        )
         self.image = pygame.Surface((self.radius*2,self.radius*2))
@@ -570,8 +595,8 @@ class Zombie_Warrior(Zombie):
         self.image.convert_alpha()
         self.image0 = self.image.copy()
         self.rect = self.image.get_rect()
-    
-    
+
+
     def update(self, seconds):
         VectorSprite.update(self, seconds)
         # --- einen zufälligen Player verfolgen ----
@@ -579,16 +604,16 @@ class Zombie_Warrior(Zombie):
         for nr in [0,1]:
             if nr in VectorSprite.numbers:
                  players.append(VectorSprite.numbers[nr])
-        
+
         if len(players) > 0 and random.random() < 0.01:
-            target = random.choice(players)     
+            target = random.choice(players)
             diffvector =  target.pos - self.pos
             print("new move:", diffvector, self.pos, target.pos)
-            diffvector.normalize_ip() 
+            diffvector.normalize_ip()
             self.move = diffvector * 100
-            
-            
-    
+
+
+
 
 
 class Rocket_Enemy(VectorSprite):
@@ -600,7 +625,7 @@ class Rocket_Enemy(VectorSprite):
         self.damage = 1
 
     def create_image(self):
-        #self.image = PygView.images["bullet"]
+        #self.image = Zviewer.images["bullet"]
         self.image = pygame.Surface((10,5))
         #pygame.draw.rect(self.image, (255,255,0), (0,2, 8,3),0)
         #pygame.draw.line(self.image, (220,220,0), (0,3),(10,3),2)
@@ -637,7 +662,7 @@ class Rocket(VectorSprite):
         self.damage = 1
 
     def create_image(self):
-        #self.image = PygView.images["bullet"]
+        #self.image = Zviewer.images["bullet"]
         self.image = pygame.Surface((10,5))
         #pygame.draw.rect(self.image, (255,255,0), (0,2, 8,3),0)
         #pygame.draw.line(self.image, (220,220,0), (0,3),(10,3),2)
@@ -660,7 +685,7 @@ class SuperRocket(VectorSprite):
         self.damage = 3
 
     def create_image(self):
-        #self.image = PygView.images["bullet"]
+        #self.image = Zviewer.images["bullet"]
         self.image = pygame.Surface((20,8))
         #pygame.draw.rect(self.image, (255,255,0), (0,2, 8,3),0)
         #pygame.draw.line(self.image, (220,220,0), (0,3),(10,3),2)
@@ -673,7 +698,7 @@ class SuperRocket(VectorSprite):
         self.image0 = self.image.copy()
         self.rect = self.image.get_rect()
 
-class PygView(object):
+class Zviewer(object):
     width = 0
     height = 0
 
@@ -681,8 +706,8 @@ class PygView(object):
         """Initialize pygame, window, background, font,...
            default arguments """
         pygame.init()
-        PygView.width = width    # make global readable
-        PygView.height = height
+        Zviewer.width = width    # make global readable
+        Zviewer.height = height
         self.screen = pygame.display.set_mode((self.width, self.height), pygame.DOUBLEBUF)
         self.background = pygame.Surface(self.screen.get_size()).convert()
         self.background.fill((255,255,255)) # fill background white
@@ -703,9 +728,9 @@ class PygView(object):
         #    print("Error: no .jpg files found")
         #    pygame.quit
         #    sys.exit()
-        PygView.bombchance = 0.015
-        PygView.rocketchance = 0.001
-        PygView.wave = 0
+        Zviewer.bombchance = 0.015
+        Zviewer.rocketchance = 0.001
+        Zviewer.wave = 0
         self.age = 0
         # ------ joysticks ----
         pygame.joystick.init()
@@ -714,19 +739,22 @@ class PygView(object):
             j.init()
         self.paint()
         self.loadbackground()
+        Game.menuitems = Game.mainmenu[:]
+        Game.cursor = 0
+        Game.language = "english"
 
     def loadbackground(self):
 
         try:
             self.background = pygame.image.load(os.path.join("data",
-                 self.backgroundfilenames[PygView.wave %
+                 self.backgroundfilenames[Zviewer.wave %
                  len(self.backgroundfilenames)]))
         except:
             self.background = pygame.Surface(self.screen.get_size()).convert()
             self.background.fill((255,255,255)) # fill background white
 
         self.background = pygame.transform.scale(self.background,
-                          (PygView.width,PygView.height))
+                          (Zviewer.width,Zviewer.height))
         self.background.convert()
 
 
@@ -740,13 +768,14 @@ class PygView(object):
         self.rocketgroup = pygame.sprite.Group()
         self.rocketenemygroup = pygame.sprite.Group()
         self.playergroup = pygame.sprite.Group()
-        Spaceship.groups = self.allgroup, self.playergroup
+        self.flytextgroup = pygame.sprite.Group()
+        Player.groups = self.allgroup, self.playergroup
         Mouse.groups = self.allgroup, self.mousegroup
         Rocket.groups = self.allgroup, self.rocketgroup
         Rocket_Enemy.groups = self.allgroup, self.rocketenemygroup
         SuperRocket.groups = self.allgroup, self.rocketgroup
         VectorSprite.groups = self.allgroup
-        Flytext.groups = self.allgroup
+        Flytext.groups = self.allgroup, self.flytextgroup
         Zombie_Warrior.groups = self.allgroup, self.enemygroup
         Zombie.groups = self.allgroup, self.enemygroup
         Zombie_Berserker.group = self.allgroup , self.enemygroup
@@ -761,8 +790,8 @@ class PygView(object):
         #self.mouse4 = Mouse(control="joystick1", color=(255,128,255))
         #self.mouse5 = Mouse(control="joystick2", color=(255,255,255))
 
-        self.player1 =  Spaceship(warp_on_edge=True, pos=pygame.math.Vector2(PygView.width/2,-PygView.height/2))
-        self.player2 =  Spaceship(warp_on_edge=True, pos=pygame.math.Vector2(PygView.width/2+100,-PygView.height/2))
+        self.player1 =  Player(warp_on_edge=True, pos=pygame.math.Vector2(Zviewer.width/2,-Zviewer.height/2))
+        self.player2 =  Player(warp_on_edge=True, pos=pygame.math.Vector2(Zviewer.width/2+100,-Zviewer.height/2))
 
     def superschuss(self, player):
         self.supertime = 0
@@ -791,7 +820,7 @@ class PygView(object):
         exittime = 0
         self.supertime = 0
         while running:
-     
+
             milliseconds = self.clock.tick(self.fps) #
             seconds = milliseconds / 1000
             self.playtime += seconds
@@ -810,6 +839,9 @@ class PygView(object):
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         running = False
+                    # ------ menu -----
+                    if event.key == pygame.K_m:
+                        self.menurun()
                     # ---- shooting rockets for player1 ----
                     if event.key == pygame.K_TAB:
                         v = pygame.math.Vector2(100,0)
@@ -850,6 +882,7 @@ class PygView(object):
                         # we know that from middle of spaceship to right edge ("nose") is 25 pixel
                         t = pygame.math.Vector2(25,0)
                         t.rotate_ip(self.player2.angle)
+                      #  for x in range(0,Zviewer.activerplayer.shots):
                         Rocket(pos=p+t, move=v, angle=a, bossnumber = self.player2.number)
                     if event.key == pygame.K_z:
                         Zombie()
@@ -872,8 +905,8 @@ class PygView(object):
             if random.random() < 0.025:
                 Zombie()
                 Zombie_Berserker()
-            
-            if random.random() < 0.01:    
+
+            if random.random() < 0.01:
                 Zombie_Warrior()
 
             # delete everything on screen
@@ -973,10 +1006,10 @@ class PygView(object):
             for r in self.rocketenemygroup:
                 crashgroup = pygame.sprite.spritecollide(r, self.playergroup,
                 False, pygame.sprite.collide_mask)
-                                                                                
+
                 for p in crashgroup:
                     p.hitpoints -= 0.5
-                
+
 
 
 
@@ -1025,7 +1058,7 @@ class PygView(object):
                         elastic_collision(r, p)
                         # r.kill()
 
-    
+
 
             # ----------- clear, draw , update, flip -----------------
             self.allgroup.draw(self.screen)
@@ -1054,5 +1087,118 @@ class PygView(object):
         pygame.mouse.set_visible(True)
         pygame.quit()
 
+    def menurun(self):
+        """The mainloop only for the menu"""
+        running = True
+        while running:
+            milliseconds = self.clock.tick(self.fps) #
+            seconds = milliseconds / 1000
+            #self.playtime += seconds
+            pygame.display.set_caption("player1 hp: {}    player2 hp: {}".format(self.player1.hitpoints, self.player2.hitpoints))
+            # -------- events ------
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                # ------- pressed and released key ------
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_m or event.key == pygame.K_ESCAPE:
+                        running = False
+                    if event.key == pygame.K_DOWN:
+                        Game.cursor += 1
+                    if event.key == pygame.K_m or event.key == pygame.K_ESCAPE:
+                        running = False
+                    if event.key == pygame.K_UP:
+                        Game.cursor -= 1
+                    if event.key == pygame.K_RETURN:
+                        # ----- menü auswertung -----
+                        command = Game.menuitems[Game.cursor]
+                        if command == "quit":
+                            running = False
+                        if command == "back":
+                            #if Game.menuitems == Game.optionsmenu:
+                            Game.menuitems = Game.mainmenu[:]
+                            #elif Game.menuitems == Game.languagemenu:
+                            #
+                            #Game.menuitems = Game.optionsmenu[:]
+                        if command == "options":
+                            Game.menuitems = Game.optionsmenu[:]
+                        if command == "upgrade player1":
+                            Game.menuitems = Game.upgrademenu[:]
+                            self.activeplayer = self.player1
+                            Flytext(x=600, y=300, text="ciao Cesare",dx = 20,dy = 0)
+                        if command == "upgrade player2":
+                            Game.menuitems = Game.upgrademenu[:]
+                            self.activeplayer = self.player2
+                        if command == "language":
+                            Game.menuitems = Game.languagemenu[:]
+                        if command == "italian":
+                            Game.language = "italian"
+                        if command == "english":
+                            #Flytext(200,200,text="you´re already in english",color=(255,0,0))
+                            Game.language = "english"
+                        if command == "german":
+                            Game.language = "german"
+                        # --- upgrade player ----
+                        if command == "shots":
+                            self.activeplayer.shots += 1
+                            print(self.activeplayer.shots)
+                        if command == "health":
+                            self.activeplayer.hitpoints += 10 
+                            print(self.activeplayer.hitpoints)
+                        if command == "damage":
+                            self.activeplayer.damage += 2
+                            
+                        if command == "speed":
+                            self.activeplayer.speed += 1
+                        
+                    #   if command == "
+
+
+
+            # --- limit cursor ---
+            if Game.cursor < 0:
+                Game.cursor = 0
+            if Game.cursor >= len(Game.menuitems):
+                Game.cursor = len(Game.menuitems) - 1
+
+            # delete everything on screen
+            self.screen.blit(self.background, (0, 0))
+
+            # ---- background for menu -----
+            pygame.draw.rect(self.screen, (144,238,144), (0, 0, self.width, self.height))
+
+            # write text below sprites
+            write(self.screen, "FPS: {:8.3}".format(
+                self.clock.get_fps() ), x=10, y=10)
+            write(self.screen, "Menu", x= 600, y=20, fontsize=50)
+
+
+            # --- write menuitems ----
+            for nr, item in enumerate(Game.menuitems):
+                if Game.language == "english":
+                    i = item
+                elif Game.language == "german":
+                    i = Game.deutsch[item]
+                elif Game.language == "italian":
+                    i = Game.italiano[item]
+                write(self.screen, i, x=400, y=200+50*nr, fontsize=75,color=(70,144,255))
+            # --- write cursor ----
+            write(self.screen, "-->", x= 300, y=200+50*Game.cursor, fontsize=50,color=(0,0,255))
+            # --------- upgrade -----
+            #self.allgroup.update(seconds)
+            self.flytextgroup.update(seconds)
+
+            # ----------- clear, draw , update, flip -----------------
+            #self.allgroup.draw(self.screen)
+            self.flytextgroup.draw(self.screen)
+
+            # -------- next frame -------------
+            pygame.display.flip()
+        #-----------------------------------------------------
+        #pygame.mouse.set_visible(True)
+        #pygame.quit()
+
+
+
 if __name__ == '__main__':
-    PygView(1430,800).run() # try PygView(800,600).run()
+    Zviewer(1430,800).run() # try Zviewer(800,600).run()
