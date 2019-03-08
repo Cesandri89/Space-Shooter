@@ -14,6 +14,7 @@ import os
 import time
 #import operator
 import math
+pygame.mixer.init()
 #import vectorclass2d as v
 #import textscroller_vertical as ts
 #import subprocess
@@ -431,7 +432,7 @@ class Player(VectorSprite):
 
 
     def _overwrite_parameters(self):
-        self.speed = 10
+        self.speed = 100
         self.damage = 1
         self.shots = 1
         self.points = 0
@@ -521,17 +522,26 @@ class Zombie(VectorSprite):
         self.bounce_on_edge = True
         self.max_age = random.randint(30,90)
         self.radius = random.randint(10, 25)
-        self.hitpoints = self.radius * 25
+        self.hitpoints = self.radius / 2
         self.mass = self.radius * 50
 
     def create_image(self):
         #c = random.choice( (64,64,64), (128,128,128),        )
-        self.image = pygame.Surface((self.radius*2,self.radius*2))
-        pygame.draw.circle(self.image, (173,229,230),(self.radius,self.radius),self.radius )
-        self.image.set_colorkey((0,0,0))
-        self.image.convert_alpha()
+        #self.image = pygame.Surface((self.radius*2,self.radius*2))
+        #pygame.draw.circle(self.image, (173,229,230),(self.radius,self.radius),self.radius )
+        #self.image.set_colorkey((0,0,0))
+        #self.image.convert_alpha()
+        #self.image0 = self.image.copy()
+        self.image = Zviewer.images["zombiedefault"]
         self.image0 = self.image.copy()
         self.rect = self.image.get_rect()
+        
+        # look into direction of moving
+        angle = pygame.math.Vector2(1,0).angle_to(self.move)
+        self.set_angle(angle)
+
+
+    
 
 class Zombie_Berserker(Zombie):
     """shoots around randomly without aiming.
@@ -545,13 +555,14 @@ class Zombie_Berserker(Zombie):
 
     def create_image(self):
         #c = random.choice( (64,64,64), (128,128,128),        )
-        self.image = pygame.Surface((self.radius*2,self.radius*2))
-        pygame.draw.circle(self.image, (174,255,0),(self.radius,self.radius),self.radius )
-        self.image.set_colorkey((0,0,0))
-        self.image.convert_alpha()
+        #self.image = pygame.Surface((self.radius*2,self.radius*2))
+        #pygame.draw.circle(self.image, (174,255,0),(self.radius,self.radius),self.radius )
+        #self.image.set_colorkey((0,0,0))
+        #self.image.convert_alpha()
+        #self.image0 = self.image.copy()
+        self.image = Zviewer.images["zombieberserker"]
         self.image0 = self.image.copy()
         self.rect = self.image.get_rect()
-
 
     def update(self, seconds):
         VectorSprite.update(self, seconds)
@@ -559,13 +570,17 @@ class Zombie_Berserker(Zombie):
         # richtungswechsel
   #      print(self.time_wait)
 
+        pygame.transform.rotate(self.image,3)
+
         if random.random() < 0.02:
                 self.move.rotate_ip(random.randint(0,360))
         # ballern
         if random.random() < self.p_shooting:
             v = pygame.math.Vector2(100,0)
             a = random.randint(0,360)
-            v.rotate_ip(a)
+            pygame.transform.rotate(self.image,3)
+
+            #v.rotate_ip(a)
             v += self.move # adding speed of spaceship to rocket
             # create a new vector (a copy, but not the same, as the pos vector of spaceship)
             p = pygame.math.Vector2(self.pos.x, self.pos.y)
@@ -579,10 +594,13 @@ class Zombie_Berserker(Zombie):
             Rocket_Enemy(pos=p, move=v, angle=a, bossnumber = self.number, max_distance=150)
             #Rocket_Enemy(pos=p, move=v, angle=a, bossnumber = z.number)
         if random.random() < 0.01:
-            print("alt", self.p_shooting)
+         #   print("alt", self.p_shooting)
             self.p_shooting *= 1.1
-            print("neu",self.p_shooting)
+          #  print("neu",self.p_shooting)
         #self.time_wait += 0.1
+        # look into direction of moving
+        angle = pygame.math.Vector2(0,1).angle_to(self.move)
+        self.set_angle(angle)
 
 
         #if self.time_wait > 0.3:
@@ -591,7 +609,13 @@ class Zombie_Berserker(Zombie):
 
         #else:
         #    self.x += 100
-#class
+#class :
+
+    """ Class doc """
+    
+    def __init__ (self):
+        """ Class initialiser """
+        pass
 
 class Zombie_Warrior(Zombie):
     
@@ -599,11 +623,13 @@ class Zombie_Warrior(Zombie):
     
     def create_image(self):
         #c = random.choice( (64,64,64), (128,128,128),        )
-        self.image = pygame.Surface((self.radius*2,self.radius*2))
-        pygame.draw.circle(self.image, (255,0,0),(self.radius,self.radius),self.radius )
-        self.image.set_colorkey((0,0,0))
-        self.image.convert_alpha()
+       # self.image = pygame.Surface((self.radius*2,self.radius*2))
+        #pygame.draw.circle(self.image, (255,0,0),(self.radius,self.radius),self.radius )
+        #self.image.set_colorkey((0,0,0))
+        #self.image.convert_alpha()
+        self.image = Zviewer.images["zombiewarrior"]
         self.image0 = self.image.copy()
+        # male ! no usare !  # self.image = pygame.image.load("enemy1.png")
         self.rect = self.image.get_rect()
 
 
@@ -621,6 +647,10 @@ class Zombie_Warrior(Zombie):
             print("new move:", diffvector, self.pos, target.pos)
             diffvector.normalize_ip()
             self.move = diffvector * 100
+       
+        # look into direction of moving
+        angle = pygame.math.Vector2(1,0).angle_to(self.move)
+        self.set_angle(angle)
 
 
 
@@ -639,7 +669,7 @@ class Rocket_Enemy(VectorSprite):
         self.image = pygame.Surface((10,5))
         #pygame.draw.rect(self.image, (255,255,0), (0,2, 8,3),0)
         #pygame.draw.line(self.image, (220,220,0), (0,3),(10,3),2)
-        pygame.draw.polygon(self.image, (1,1,1),
+        pygame.draw.polygon(self.image, (255,1,1),
                             [(0,0), (7,0), (9,2), (9,3), (7, 4), (0,4)]
                            )
         #self.image.fill((255,255,0))
@@ -695,6 +725,7 @@ class SuperRocket(VectorSprite):
         self.damage = 3
 
     def create_image(self):
+        
         #self.image = Zviewer.images["bullet"]
         self.image = pygame.Surface((20,8))
         #pygame.draw.rect(self.image, (255,255,0), (0,2, 8,3),0)
@@ -712,15 +743,16 @@ class Zviewer(object):
     width = 0
     height = 0
 
-    def __init__(self, width=640, height=400, fps=60):
+    def __init__(self, width=640, height=400, fps=120):
         """Initialize pygame, window, background, font,...
-           default arguments """
+           default arguments """       
         pygame.init()
+        pygame.mixer.pre_init(44100, -16, 2, 2048)
         Zviewer.width = width    # make global readable
         Zviewer.height = height
         self.screen = pygame.display.set_mode((self.width, self.height), pygame.DOUBLEBUF)
-        self.background = pygame.Surface(self.screen.get_size()).convert()
-        self.background.fill((255,255,255)) # fill background white
+        self.background = pygame.image.load("back.png")#pygame.Surface(self.screen.get_size()).convert()
+        #self.background.fill((255,255,255)) # fill background white
         self.clock = pygame.time.Clock()
         self.fps = fps
         self.playtime = 0.0
@@ -751,7 +783,7 @@ class Zviewer(object):
         self.load_images()
         self.paint()
         self.loadbackground()
-        
+        self.prepare_sounds()
         Game.menuitems = Game.mainmenu[:]
         Game.cursor = 0
         Game.language = "english"
@@ -759,6 +791,10 @@ class Zviewer(object):
     def load_images(self):
         Zviewer.images["player1"] = pygame.image.load("player1.png").convert_alpha()
         Zviewer.images["player2"] = pygame.image.load("player2.png").convert_alpha()
+        Zviewer.images["zombiewarrior"] = pygame.image.load("enemy1.png").convert_alpha()
+        Zviewer.images["zombieberserker"] = pygame.image.load("spaceship1-Black.png").convert_alpha()
+        Zviewer.images["zombiedefault"] = pygame.image.load("spaceship1-orange.png").convert_alpha()
+        
         
         ## resize all to 100,100
         for i in Zviewer.images.keys():
@@ -768,9 +804,7 @@ class Zviewer(object):
     def loadbackground(self):
 
         try:
-            self.background = pygame.image.load(os.path.join("data",
-                 self.backgroundfilenames[Zviewer.wave %
-                 len(self.backgroundfilenames)]))
+            self.background = pygame.image.load("back.png")
         except:
             self.background = pygame.Surface(self.screen.get_size()).convert()
             self.background.fill((255,255,255)) # fill background white
@@ -778,7 +812,12 @@ class Zviewer(object):
         self.background = pygame.transform.scale(self.background,
                           (Zviewer.width,Zviewer.height))
         self.background.convert()
-
+    
+ 
+    def prepare_sounds(self):
+        # music 
+        Zviewer.shot = pygame.mixer.Sound(os.path.join("data","novashot.wav"))
+        
 
     def paint(self):
         """painting on the surface and create sprites"""
@@ -825,9 +864,9 @@ class Zviewer(object):
         a = player.angle
         # launch rocktet not from middle of spaceship, but from it's nose (rightmost point)
         # we know that from middle of spaceship to right edge ("nose") is 25 pixel
-        t = pygame.math.Vector2(25,0)
+        t = pygame.math.Vector2(50,0)
         t.rotate_ip(player.angle)
-        SuperRocket(pos=p+t, move=v, angle=a, bossnumber = player.number, damage = self.supertime * 2)
+        SuperRocket(pos=p+t, move=10, angle=a, bossnumber = player.number, damage = self.supertime * 2)
 
 
 
@@ -869,7 +908,8 @@ class Zviewer(object):
                         self.menurun()
                     # ---- shooting rockets for player1 ----
                     if event.key == pygame.K_TAB:
-                        v = pygame.math.Vector2(100,0)
+                        Zviewer.shot.play()
+                        v = pygame.math.Vector2(1000,0)
                         v.rotate_ip(self.player1.angle)
                         v += self.player1.move # adding speed of spaceship to rocket
                         # create a new vector (a copy, but not the same, as the pos vector of spaceship)
@@ -897,7 +937,8 @@ class Zviewer(object):
                             self.supertime = 0
                     # ---- shooting rockets for player2 ----
                     if event.key == pygame.K_SPACE:
-                        v = pygame.math.Vector2(100,0)
+                        Zviewer.shot.play()
+                        v = pygame.math.Vector2(1000,0)
                         v.rotate_ip(self.player2.angle)
                         v += self.player1.move # adding speed of spaceship to rocket
                         # create a new vector (a copy, but not the same, as the pos vector of spaceship)
@@ -908,8 +949,8 @@ class Zviewer(object):
                         t = pygame.math.Vector2(25,0)
                         t.rotate_ip(self.player2.angle)
                         for x in range(self.activeplayer.shots):
-                        
-                           Rocket(pos=p+t, move=v * (1+x*0.05), angle=a, bossnumber = self.player2.number)
+                            #pygame.mixer.music.play(shot)
+                            Rocket(pos=p+t, move=v * (1+x*0.05), angle=a, bossnumber = self.player2.number)
                     
                     
                     if event.key == pygame.K_z:
@@ -1089,9 +1130,11 @@ class Zviewer(object):
                              False, pygame.sprite.collide_mask)
                 #print("collided!")
                 for e in crashgroup:
-                    p.hitpoints -= random.randint(3,6)
+                    p.hitpoints -= 1
                     e.hitpoints -= random.randint(5,10)
-                    elastic_collision(p,e)
+                  #  elastic_collision(p,e)
+                    p.points += 1
+                    print(p.points)
                     #e.kill()
                     #p.kill()
 
@@ -1142,7 +1185,7 @@ class Zviewer(object):
             milliseconds = self.clock.tick(self.fps) #
             seconds = milliseconds / 1000
             #self.playtime += seconds
-            pygame.display.set_caption("player1 hp: {}    player2 hp: {}" , "points player1: {}" , "points player2: {}" .format(self.player1.hitpoints, self.player2.hitpoints))
+            pygame.display.set_caption("player1 hp: {} player2 hp: {} ".format(self.player1.hitpoints, self.player2.hitpoints))
             # -------- events ------
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -1201,6 +1244,8 @@ class Zviewer(object):
                             
                         if command == "speed":
                             self.activeplayer.speed += 1
+                            print(self.activeplayer.speed)
+                   
                         
                     #   if command == "
 
