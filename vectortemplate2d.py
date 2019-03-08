@@ -74,6 +74,12 @@ def elastic_collision(sprite1, sprite2):
                 sprite1.move.x -= 2 * dirx * cdp
                 sprite1.move.y -= 2 * diry * cdp
 
+
+
+
+
+
+
 class Game:
     menuitems = []
     mainmenu = ["play", "options", "credits", "upgrade player1", "upgrade player2", "quit"]
@@ -82,16 +88,16 @@ class Game:
     languagemenu = ["english","italian","german","back"]
     #languageitalianmenu = ["inglese","italiano","tedesco","indietro"]
     italiano = {"play":"gioca", "options":"opzioni", "credits":"crediti", "upgrade player1":"potenzia player1",
-                "upgrade player2":"potenzia player2","quit":"esci", "audio":"audio", "video":"video", 
+                "upgrade player2":"potenzia player2","quit":"esci", "audio":"audio", "video":"video",
                  "language":"lingua","back":"indietro","speed":"velocita","health":"vita",
                  "shots":"proiettili","damage":"danno","german":"tedesco","english":"inglese",
                  "italian":"italiano" }
-    deutsch = {"play":"Spiel starten", "options":"Optionen", "credits":"Mitwirkende", 
+    deutsch = {"play":"Spiel starten", "options":"Optionen", "credits":"Mitwirkende",
                 "upgrade player1":  "Upgrade player1", "upgrade player2":"Upgrade player2","quit":"Ende",
                 "audio":"Ton","video":"Grafik","language":"Sprache","back":"Zurück",
                 "speed":"Geschwindigkeit","health":"Leben","shots":"Kugeln","damage":"Schaden",
                 "german":"Deutsch","english":"English","italian":"Italienisch"}
-    
+
 
 class Flytext(pygame.sprite.Sprite):
     def __init__(self, x, y, text="hallo", color=(255, 0, 0),
@@ -367,7 +373,7 @@ class VectorSprite(pygame.sprite.Sprite):
         """calculate movement, position and bouncing on edge"""
         # ----- kill because... ------
         if self.hitpoints <= 0:
-            self.kill()             
+            self.kill()
         if self.max_age is not None and self.age > self.max_age:
             self.kill()
         if self.max_distance is not None and self.distance_traveled > self.max_distance:
@@ -427,8 +433,8 @@ class VectorSprite(pygame.sprite.Sprite):
                 self.pos.y = 0
 
 class Player(VectorSprite):
-    
-    
+
+
 
 
     def _overwrite_parameters(self):
@@ -436,7 +442,9 @@ class Player(VectorSprite):
         self.damage = 1
         self.shots = 1
         self.points = 0
-        
+        self.active_weapon = "default"
+        self.weapons = ["default","superbullet"]
+
     def create_image(self):
         #self.image = pygame.Surface((100,100))
         #pygame.draw.polygon(self.image,(255,0,0),((80,20),(95,35),(80,45),(70,27)))
@@ -451,7 +459,7 @@ class Player(VectorSprite):
             self.image = Zviewer.images["player1"]
         elif self.number == 1:
             self.image = Zviewer.images["player2"]
-        
+
         self.image0 = self.image.copy()
         self.rect = self.image.get_rect()
         self.mass = 200
@@ -535,13 +543,13 @@ class Zombie(VectorSprite):
         self.image = Zviewer.images["zombiedefault"]
         self.image0 = self.image.copy()
         self.rect = self.image.get_rect()
-        
+
         # look into direction of moving
         angle = pygame.math.Vector2(1,0).angle_to(self.move)
         self.set_angle(angle)
 
 
-    
+
 
 class Zombie_Berserker(Zombie):
     """shoots around randomly without aiming.
@@ -612,15 +620,15 @@ class Zombie_Berserker(Zombie):
 #class :
 
     """ Class doc """
-    
+
     def __init__ (self):
         """ Class initialiser """
         pass
 
 class Zombie_Warrior(Zombie):
-    
+
     """ hunting player """
-    
+
     def create_image(self):
         #c = random.choice( (64,64,64), (128,128,128),        )
        # self.image = pygame.Surface((self.radius*2,self.radius*2))
@@ -647,7 +655,7 @@ class Zombie_Warrior(Zombie):
             print("new move:", diffvector, self.pos, target.pos)
             diffvector.normalize_ip()
             self.move = diffvector * 100
-       
+
         # look into direction of moving
         angle = pygame.math.Vector2(1,0).angle_to(self.move)
         self.set_angle(angle)
@@ -678,28 +686,13 @@ class Rocket_Enemy(VectorSprite):
         self.image0 = self.image.copy()
         self.rect = self.image.get_rect()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class Rocket(VectorSprite):
 
 
     def _overwrite_parameters(self):
         self._layer = 1
         self.kill_on_edge = True
-        self.damage = 10
+        self.damage = 3
 
     def create_image(self):
         #self.image = Zviewer.images["bullet"]
@@ -722,10 +715,10 @@ class SuperRocket(VectorSprite):
     def _overwrite_parameters(self):
         self._layer = 1
         self.kill_on_edge = True
-        self.damage = 3
+        self.damage = 10
 
     def create_image(self):
-        
+
         #self.image = Zviewer.images["bullet"]
         self.image = pygame.Surface((20,8))
         #pygame.draw.rect(self.image, (255,255,0), (0,2, 8,3),0)
@@ -745,7 +738,7 @@ class Zviewer(object):
 
     def __init__(self, width=640, height=400, fps=120):
         """Initialize pygame, window, background, font,...
-           default arguments """       
+           default arguments """
         pygame.init()
         pygame.mixer.pre_init(44100, -16, 2, 2048)
         Zviewer.width = width    # make global readable
@@ -794,13 +787,13 @@ class Zviewer(object):
         Zviewer.images["zombiewarrior"] = pygame.image.load("enemy1.png").convert_alpha()
         Zviewer.images["zombieberserker"] = pygame.image.load("spaceship1-Black.png").convert_alpha()
         Zviewer.images["zombiedefault"] = pygame.image.load("spaceship1-orange.png").convert_alpha()
-        
-        
+
+
         ## resize all to 100,100
         for i in Zviewer.images.keys():
             if "player" in i:
                 Zviewer.images[i] = pygame.transform.scale(Zviewer.images[i], (100,100))
-   
+
     def loadbackground(self):
 
         try:
@@ -812,12 +805,12 @@ class Zviewer(object):
         self.background = pygame.transform.scale(self.background,
                           (Zviewer.width,Zviewer.height))
         self.background.convert()
-    
- 
+
+
     def prepare_sounds(self):
-        # music 
+        # music
         Zviewer.shot = pygame.mixer.Sound(os.path.join("data","novashot.wav"))
-        
+
 
     def paint(self):
         """painting on the surface and create sprites"""
@@ -854,6 +847,9 @@ class Zviewer(object):
         self.player1 =  Player(warp_on_edge=True, pos=pygame.math.Vector2(Zviewer.width/2,-Zviewer.height/2))
         self.player2 =  Player(warp_on_edge=True, pos=pygame.math.Vector2(Zviewer.width/2+100,-Zviewer.height/2))
 
+
+
+
     def superschuss(self, player):
         self.supertime = 0
         v = pygame.math.Vector2(100,0)
@@ -868,7 +864,19 @@ class Zviewer(object):
         t.rotate_ip(player.angle)
         SuperRocket(pos=p+t, move=10, angle=a, bossnumber = player.number, damage = self.supertime * 2)
 
+    def switch1(self):
+        self.switch_number += 1
+        if self.switch_number == len(self.player1.weapons ):
+            self.switch_number = 0
+        self.player1.active_weapon = self.player1.weapons[self.switch_number]
+        print(self.player1.active_weapon)
 
+    def switch2(self):
+        self.switch_number += 1
+        if self.switch_number == len(self.player2.weapons ):
+            self.switch_number = 0
+        self.player2.active_weapon = self.player2.weapons[self.switch_number]
+        print(self.player2.active_weapon)
 
 
     def run(self):
@@ -882,7 +890,8 @@ class Zviewer(object):
         self.supertime = 0
         self.points = 0
         self.activeplayer = self.player1
-        
+        self.switch_number = 0
+
         while running:
 
             milliseconds = self.clock.tick(self.fps) #
@@ -921,8 +930,19 @@ class Zviewer(object):
                         t.rotate_ip(self.player1.angle)
                         t1 = pygame.math.Vector2(-25,-25)
                         t1.rotate_ip(self.player1.angle)
-                        Rocket(pos=p+t, move=v, angle=a,bossnumber = self.player1.number)
-                        Rocket(pos=p+t1, move=v, angle=a,bossnumber = self.player1.number)
+
+                        if self.player2.active_weapon == "default":
+                            for x in range(self.activeplayer.shots):
+                                #pygame.mixer.music.play(shot)
+                                Rocket(pos=p+t, move=v, angle=a,bossnumber = self.player1.number)
+                                Rocket(pos=p+t1, move=v, angle=a,bossnumber = self.player1.number)
+
+                        if self.player2.active_weapon == "superbullet":
+                            for x in range(self.activeplayer.shots):
+                                #pygame.mixer.music.play(shot)
+                                SuperRocket(pos=p+t, move=v, angle=a,bossnumber = self.player1.number)
+                                SuperRocket(pos=p+t1, move=v, angle=a,bossnumber = self.player1.number)
+
 
                     # ---- shooting superrockets for player1 ----
                     # press and hold 3 seconds
@@ -935,10 +955,12 @@ class Zviewer(object):
                         if self.supertime > 0:
                             self.superschuss(self.player1)
                             self.supertime = 0
+
                     # ---- shooting rockets for player2 ----
                     if event.key == pygame.K_SPACE:
+                        print(self.player1.active_weapon)
                         Zviewer.shot.play()
-                        v = pygame.math.Vector2(1000,0)
+                        v = pygame.math.Vector2(500,0)
                         v.rotate_ip(self.player2.angle)
                         v += self.player1.move # adding speed of spaceship to rocket
                         # create a new vector (a copy, but not the same, as the pos vector of spaceship)
@@ -948,11 +970,27 @@ class Zviewer(object):
                         # we know that from middle of spaceship to right edge ("nose") is 25 pixel
                         t = pygame.math.Vector2(25,0)
                         t.rotate_ip(self.player2.angle)
-                        for x in range(self.activeplayer.shots):
-                            #pygame.mixer.music.play(shot)
-                            Rocket(pos=p+t, move=v * (1+x*0.05), angle=a, bossnumber = self.player2.number)
-                    
-                    
+
+                        if self.player1.active_weapon == "default":
+                            for x in range(self.activeplayer.shots):
+                                #pygame.mixer.music.play(shot)
+                                Rocket(pos=p+t, move=v * (1+x*0.05), angle=a, bossnumber = self.player2.number)
+
+                        if self.player1.active_weapon == "superbullet":
+                            for x in range(self.activeplayer.shots):
+                                #pygame.mixer.music.play(shot)
+                                SuperRocket(pos=p+t, move=v * (1+x*0.05), angle=a, bossnumber = self.player2.number)
+
+
+
+                    # ---- switching weapon for player1
+                    if event.key == pygame.K_c:
+                        self.switch1()
+
+                    # ---- switching weapon for player2
+                    if event.key == pygame.K_x:
+                        self.switch2()
+
                     if event.key == pygame.K_z:
                         Zombie()
 
@@ -971,12 +1009,12 @@ class Zviewer(object):
 
 
             #---- new zombies -----
-            if random.random() < 0.025:
-                Zombie()
-                Zombie_Berserker()
+      #      if random.random() < 0.025:
+       #         Zombie()
+        #        Zombie_Berserker()
 
-            if random.random() < 0.01:
-                Zombie_Warrior()
+         #   if random.random() < 0.01:
+          #      Zombie_Warrior()
 
             # delete everything on screen
             self.screen.blit(self.background, (0, 0))
@@ -1008,23 +1046,23 @@ class Zviewer(object):
             if pressed_keys[pygame.K_w]:
                 v = pygame.math.Vector2(vel1,0)
                 v.rotate_ip(self.player1.angle)
-                self.player1.move += v 
+                self.player1.move += v
                 moving = True
             if pressed_keys[pygame.K_s]:
                 v = pygame.math.Vector2(vel1,0)
                 v.rotate_ip(self.player1.angle)
                 self.player1.move += -v
-                moving = True 
+                moving = True
             if not moving:
                 self.player1.move = pygame.math.Vector2(0,0)
-                
+
             # if pressed_keys[pygame.K_LSHIFT]:
             # ---- movement for player2 ----
             moving2 = False
             vel2 = 5
             if pressed_keys[pygame.K_LEFT]:
                 self.player2.rotate(vel2)
-                moving2 = True 
+                moving2 = True
             if pressed_keys[pygame.K_RIGHT]:
                 self.player2.rotate(-vel2)
                 moving2 = True
@@ -1038,7 +1076,7 @@ class Zviewer(object):
                 v.rotate_ip(self.player2.angle)
                 self.player2.move += -v
                 moving2 = True
-            
+
             if not moving2:
                 self.player2.move = pygame.math.Vector2(0,0)
 
@@ -1087,7 +1125,7 @@ class Zviewer(object):
                     if r.bossnumber != p.number:
                         p.hitpoints -= r.damage
                         r.kill()
-                        
+
 
             # --------- collision detection between player and enemy_rocket -----
             for r in self.rocketenemygroup:
@@ -1096,26 +1134,28 @@ class Zviewer(object):
 
                 for p in crashgroup:
                     p.hitpoints -= 0.5
-                    
+
             # --------- collision detection between enemies and rocket -----
             for e in self.enemygroup:
                 crashgroup = pygame.sprite.spritecollide(e, self.rocketgroup,
                              False, pygame.sprite.collide_mask)
                 #print("collided!")
                 for r in crashgroup:
+                #   if r.__class__.__name__ == "Rocket":
                     e.hitpoints -= r.damage
                     elastic_collision(r, e)
+
                     if e.hitpoints <= 0:
                         print("coll:", r.bossnumber, self.player1.number, self.player2.number)
                         if r.bossnumber == self.player1.number:
                             self.player1.points += 1
-                            
+
                         elif r.bossnumber == self.player2.number:
                             self.player2.points += 1
-                            
+
                     r.kill()
                     #e.kill()
-                    
+
 
             # --------- collision detection between enemy and other enemy -----
             for e in self.enemygroup:
@@ -1178,6 +1218,16 @@ class Zviewer(object):
         pygame.mouse.set_visible(True)
         pygame.quit()
 
+    def startmenu(self):
+        pass
+
+
+
+
+
+
+
+
     def menurun(self):
         """The mainloop only for the menu"""
         running = True
@@ -1185,7 +1235,7 @@ class Zviewer(object):
             milliseconds = self.clock.tick(self.fps) #
             seconds = milliseconds / 1000
             #self.playtime += seconds
-            pygame.display.set_caption("player1 hp: {} player2 hp: {} ".format(self.player1.hitpoints, self.player2.hitpoints))
+            pygame.display.set_caption("player1 hp: {} player2 hp: {}" .format(self.player1.hitpoints, self.player2.hitpoints))
             # -------- events ------
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -1237,16 +1287,16 @@ class Zviewer(object):
                             else:
                                 Flytext(500,300, "maximal number of shots already bought")
                         if command == "health":
-                            self.activeplayer.hitpoints += 10 
+                            self.activeplayer.hitpoints += 10
                             print(self.activeplayer.hitpoints)
                         if command == "damage":
                             self.activeplayer.damage += 2
-                            
+
                         if command == "speed":
                             self.activeplayer.speed += 1
                             print(self.activeplayer.speed)
-                   
-                        
+
+
                     #   if command == "
 
 
