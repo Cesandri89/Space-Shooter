@@ -444,6 +444,8 @@ class Player(VectorSprite):
         self.points = 0
         self.active_weapon = "default"
         self.weapons = ["default","superbullet"]
+        self.switch_number = 0
+
 
     def create_image(self):
         #self.image = pygame.Surface((100,100))
@@ -463,6 +465,13 @@ class Player(VectorSprite):
         self.image0 = self.image.copy()
         self.rect = self.image.get_rect()
         self.mass = 200
+
+    def switch(self):
+        self.switch_number += 1
+        if self.switch_number == len(self.weapons ):
+            self.switch_number = 0
+        self.active_weapon = self.weapons[self.switch_number]
+        print(self.active_weapon)
 
 
 
@@ -864,20 +873,6 @@ class Zviewer(object):
         t.rotate_ip(player.angle)
         SuperRocket(pos=p+t, move=10, angle=a, bossnumber = player.number, damage = self.supertime * 2)
 
-    def switch1(self):
-        self.switch_number += 1
-        if self.switch_number == len(self.player1.weapons ):
-            self.switch_number = 0
-        self.player1.active_weapon = self.player1.weapons[self.switch_number]
-        print(self.player1.active_weapon)
-
-    def switch2(self):
-        self.switch_number += 1
-        if self.switch_number == len(self.player2.weapons ):
-            self.switch_number = 0
-        self.player2.active_weapon = self.player2.weapons[self.switch_number]
-        print(self.player2.active_weapon)
-
 
     def run(self):
         """The mainloop"""
@@ -890,7 +885,6 @@ class Zviewer(object):
         self.supertime = 0
         self.points = 0
         self.activeplayer = self.player1
-        self.switch_number = 0
 
         while running:
 
@@ -985,11 +979,11 @@ class Zviewer(object):
 
                     # ---- switching weapon for player1
                     if event.key == pygame.K_c:
-                        self.switch1()
+                        self.player1.switch()
 
                     # ---- switching weapon for player2
                     if event.key == pygame.K_x:
-                        self.switch2()
+                        self.player2.switch()
 
                     if event.key == pygame.K_z:
                         Zombie()
