@@ -523,6 +523,7 @@ class Player(VectorSprite):
         self.active_weapon = "default"
         self.weapons = ["default","superbullet"]
         self.switch_number = 0
+        self.ammotime = 0
 
 
     def create_image(self):
@@ -550,6 +551,43 @@ class Player(VectorSprite):
             self.switch_number = 0
         self.active_weapon = self.weapons[self.switch_number]
         print(self.active_weapon)
+
+    def shoot(self):
+        #Flytext(x=600, y=300, text="ciao Cesare",dx = 20,dy = 0)
+        Zviewer.shot.play()
+        # create a new vector (a copy, but not the same, as the pos vector of spaceship)
+        p = pygame.math.Vector2(self.pos.x, self.pos.y)
+        a = self.angle
+        # launch rocktet not from middle of spaceship, but from it's nose (rightmost point)
+        # we know that from middle of spaceship to right edge ("nose") is 25 pixel
+        t = pygame.math.Vector2(-25,25)
+        t.rotate_ip(self.angle)
+        # player1 has a second cannon
+        t1 = pygame.math.Vector2(-25,-25)
+        t1.rotate_ip(self.angle)
+        if self.ammotime > self.age:
+            delta_angle = [-3,-2,-1,0,1,4,6]
+        else:
+            delta_angle = [0]
+        for da in delta_angle:
+            v = pygame.math.Vector2(500,0)
+            v.rotate_ip(self.angle+da)
+            v += self.move # adding speed of spaceship to rocket
+      
+            if self.active_weapon == "default":
+                for x in range(self.shots):
+                    #pygame.mixer.music.play(shot)
+                    Rocket(pos=p+t, move=v, angle=a+da,bossnumber = self.number)
+                    #if self.number == 0:
+                    Rocket(pos=p+t1, move=v, angle=a,bossnumber = self.number)
+
+            if self.active_weapon == "superbullet":
+                for x in range(self.shots):
+                    #pygame.mixer.music.play(shot)
+                    SuperRocket(pos=p+t, move=v, angle=a,bossnumber = self.number)
+                    #if self.number == 0:
+                    SuperRocket(pos=p+t1, move=v, angle=a,bossnumber = self.number)
+
 
 
 
@@ -773,7 +811,7 @@ class Zombie_Boss(Zombie):
             diffvector =  target.pos - self.pos
             print("new move:", diffvector, self.pos, target.pos)
             diffvector.normalize_ip()
-            self.move = diffvector * 100
+            self.move = diffvector * 10
 
         # look into direction of moving
         angle = pygame.math.Vector2(1,0).angle_to(self.move)
@@ -861,6 +899,32 @@ class SuperRocket(VectorSprite):
         self.image0 = self.image.copy()
         self.rect = self.image.get_rect()
 
+class Ammo(Zombie):
+    
+        
+    def create_image(self):
+        self.image = Zviewer.images["ammo"]
+        self.image.set_colorkey((0,0,0))
+        self.image.convert_alpha()
+        self.image0 = self.image.copy()
+        self.rect = self.image.get_rect()
+    
+    def kill(self):
+        VectorSprite.kill(self)
+    
+    #def power(self):
+      #  pass
+     #  self.timer = time.time()
+        #self.time = (self.timer()) - time.time()) / -1
+#       if self.time < 10:
+#           p.
+            
+            
+
+    
+    
+
+
 class Zviewer(object):
     width = 0
     height = 0
@@ -919,7 +983,9 @@ class Zviewer(object):
         Zviewer.images["zombieberserker"] = pygame.image.load("spaceship1-Black.png").convert_alpha()
         Zviewer.images["zombiedefault"] = pygame.image.load("spaceship1-orange.png").convert_alpha()
         Zviewer.images["zombieboss"] = pygame.image.load("redboss.png").convert_alpha()
-
+        Zviewer.images["ammo"] = pygame.image.load("ammo.png").convert_alpha()
+        
+        
         ## resize all to 100,100
         for i in Zviewer.images.keys():
             if "player" in i:
@@ -955,11 +1021,13 @@ class Zviewer(object):
         self.playergroup = pygame.sprite.Group()
         self.wavescreengroup = pygame.sprite.Group()
         self.flytextgroup = pygame.sprite.Group()
+        self.powerupsgroup = pygame.sprite.Group()
         Player.groups = self.allgroup, self.playergroup
         Mouse.groups = self.allgroup, self.mousegroup
         Rocket.groups = self.allgroup, self.rocketgroup
         Rocket_Enemy.groups = self.allgroup, self.rocketenemygroup
         SuperRocket.groups = self.allgroup, self.rocketgroup
+        Ammo.groups = self.allgroup, self.powerupsgroup
         VectorSprite.groups = self.allgroup
         WaveScreen.groups = self.allgroup , self.wavescreengroup
         Flytext.groups = self.allgroup, self.flytextgroup
@@ -1043,33 +1111,8 @@ class Zviewer(object):
                         self.menurun()
                     # ---- shooting rockets for player1 ----
                     if event.key == pygame.K_TAB:
-                        Zviewer.shot.play()
-                        v = pygame.math.Vector2(1000,0)
-                        v.rotate_ip(self.player1.angle)
-                        v += self.player1.move # adding speed of spaceship to rocket
-                        # create a new vector (a copy, but not the same, as the pos vector of spaceship)
-                        p = pygame.math.Vector2(self.player1.pos.x, self.player1.pos.y)
-                        a = self.player1.angle
-                        # launch rocktet not from middle of spaceship, but from it's nose (rightmost point)
-                        # we know that from middle of spaceship to right edge ("nose") is 25 pixel
-                        t = pygame.math.Vector2(-25,25)
-                        t.rotate_ip(self.player1.angle)
-                        t1 = pygame.math.Vector2(-25,-25)
-                        t1.rotate_ip(self.player1.angle)
-
-                        if self.player2.active_weapon == "default":
-                            for x in range(self.activeplayer.shots):
-                                #pygame.mixer.music.play(shot)
-                                Rocket(pos=p+t, move=v, angle=a,bossnumber = self.player1.number)
-                                Rocket(pos=p+t1, move=v, angle=a,bossnumber = self.player1.number)
-
-                        if self.player2.active_weapon == "superbullet":
-                            for x in range(self.activeplayer.shots):
-                                #pygame.mixer.music.play(shot)
-                                SuperRocket(pos=p+t, move=v, angle=a,bossnumber = self.player1.number)
-                                SuperRocket(pos=p+t1, move=v, angle=a,bossnumber = self.player1.number)
-
-
+                        self.player1.shoot()
+          
                     # ---- shooting superrockets for player1 ----
                     # press and hold 3 seconds
                     if event.key == pygame.K_LSHIFT:
@@ -1084,30 +1127,7 @@ class Zviewer(object):
 
                     # ---- shooting rockets for player2 ----
                     if event.key == pygame.K_SPACE:
-                        print(self.player1.active_weapon)
-                        Zviewer.shot.play()
-                        v = pygame.math.Vector2(500,0)
-                        v.rotate_ip(self.player2.angle)
-                        v += self.player1.move # adding speed of spaceship to rocket
-                        # create a new vector (a copy, but not the same, as the pos vector of spaceship)
-                        p = pygame.math.Vector2(self.player2.pos.x, self.player2.pos.y)
-                        a = self.player2.angle
-                        # launch rocktet not from middle of spaceship, but from it's nose (rightmost point)
-                        # we know that from middle of spaceship to right edge ("nose") is 25 pixel
-                        t = pygame.math.Vector2(25,0)
-                        t.rotate_ip(self.player2.angle)
-
-                        if self.player1.active_weapon == "default":
-                            for x in range(self.activeplayer.shots):
-                                #pygame.mixer.music.play(shot)
-                                Rocket(pos=p+t, move=v * (1+x*0.05), angle=a, bossnumber = self.player2.number)
-
-                        if self.player1.active_weapon == "superbullet":
-                            for x in range(self.activeplayer.shots):
-                                #pygame.mixer.music.play(shot)
-                                SuperRocket(pos=p+t, move=v * (1+x*0.05), angle=a, bossnumber = self.player2.number)
-
-
+                       self.player2.shoot()
 
                     # ---- switching weapon for player1
                     if event.key == pygame.K_c:
@@ -1145,8 +1165,11 @@ class Zviewer(object):
 
             if random.random() < 0.01:
                 Zombie_Warrior()
-             
-                 
+            
+            #---- new power up ----
+            if random.random() < 0.001:
+                Ammo() 
+            
             pointsboth = (self.player1.points + self.player2.points) 
             if pointsboth > 0 and pointsboth % 15 == 0:
                 self.new_wave()
@@ -1264,8 +1287,19 @@ class Zviewer(object):
                     if r.bossnumber != p.number:
                         p.hitpoints -= r.damage
                         r.kill()
-
-
+                        
+            # --------- collision detection between player and power up ammo ------
+            for p in self.playergroup:
+                crashgroup = pygame.sprite.spritecollide(p, self.powerupsgroup,
+                             False, pygame.sprite.collide_mask)
+                for a in crashgroup:
+                    if a.bossnumber != p.number:
+                        #print("collided!")
+                        Flytext(x=p.rect.x, y=p.rect.y, text="You picked up a super ammo",dx = 20,dy = 0)
+                        #a.power()
+                        p.ammotime = p.age + 10
+                        a.kill()
+            
             # --------- collision detection between player and enemy_rocket -----
             for r in self.rocketenemygroup:
                 crashgroup = pygame.sprite.spritecollide(r, self.playergroup,
