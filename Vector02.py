@@ -130,37 +130,6 @@ class WaveScreen(pygame.sprite.Sprite):
         #self.rect.fill((254,254,254))
 
 
-class Flytext(pygame.sprite.Sprite):
-    def __init__(self, x, y, text="hallo", color=(255, 0, 0),
-                 dx=0, dy=-50, duration=2, acceleration_factor = 1.0, delay = 0, fontsize=22):
-        """a text flying upward and for a short time and disappearing"""
-        self._layer = 7  # order of sprite layers (before / behind other sprites)
-        pygame.sprite.Sprite.__init__(self, self.groups)  # THIS LINE IS IMPORTANT !!
-        self.text = text
-        self.r, self.g, self.b = color[0], color[1], color[2]
-        self.dx = dx
-        self.dy = dy
-        self.x, self.y = x, y
-        self.duration = duration  # duration of flight in seconds
-        self.acc = acceleration_factor  # if < 1, Text moves slower. if > 1, text moves faster.
-        self.image = make_text(self.text, (self.r, self.g, self.b), fontsize)  # font 22
-        self.rect = self.image.get_rect()
-        self.rect.center = (self.x, self.y)
-        self.time = 0 - delay
-
-    def update(self, seconds):
-        self.time += seconds
-        if self.time < 0:
-            self.rect.center = (-100,-100)
-        else:
-            self.y += self.dy * seconds
-            self.x += self.dx * seconds
-            self.dy *= self.acc  # slower and slower
-            self.dx *= self.acc
-            self.rect.center = (self.x, self.y)
-            if self.time > self.duration:
-                self.kill()      # remove Sprite from screen and from groups
-
 class Mouse(pygame.sprite.Sprite):
     def __init__(self, radius = 50, color=(255,0,0), x=320, y=240,
                     startx=100,starty=100, control="mouse", ):
@@ -421,7 +390,7 @@ class VectorSprite(pygame.sprite.Sprite):
         self.pos += self.move * seconds
         self.distance_traveled += self.move.length() * seconds
         self.age += seconds
-        self.wallbounce()
+        #self.wallbounce()
         self.rect.center = ( round(self.pos.x, 0), -round(self.pos.y, 0) )
 
     def wallbounce(self):
@@ -464,6 +433,30 @@ class VectorSprite(pygame.sprite.Sprite):
                 self.pos.y = 0
 
 
+
+class Flytext(VectorSprite):
+    
+    def _overwrite_parameters(self):
+        """a text flying upward and for a short time and disappearing"""
+        self._layer = 7  # order of sprite layers (before / behind other sprites)
+    
+        #pygame.sprite.Sprite.__init__(self, self.groups)  # THIS LINE IS IMPORTANT !!
+        # max_age
+      
+        #self.x, self.y = x, y
+        
+        #self.duration = duration  # duration of flight in seconds
+        #self.acc = acceleration_factor  # if < 1, Text moves slower. if > 1, text moves faster.
+        #self.age = 0 - delay
+
+        
+    def create_image(self):
+        self.image = make_text(self.text, self.color, self.fontsize)  # font 22
+        self.rect = self.image.get_rect()
+        #self.rect.center = (self.x, self.y)
+        
+   
+
 class Cloud(VectorSprite):
     
     def _overwrite_parameters(self):
@@ -472,6 +465,7 @@ class Cloud(VectorSprite):
         self.hitpoints = 100
         self.shots = 1
         self.points = 0
+        self._layer = -5
         self.active_weapon = "default"
         self.weapons = ["default","superbullet"]
         self.switch_number = 0
@@ -553,6 +547,31 @@ class Player(VectorSprite):
         self.weapons = ["default","superbullet"]
         self.switch_number = 0
         self.ammotime = 0
+
+
+
+    def wallbounce(self):
+        # ---- bounce / kill on screen edge ----
+        # ------- left edge ----
+        if self.pos.x < 0:
+                self.pos.x = 0
+                self.move = pygame.math.Vector2(0,0)
+                #self.move.x *= -1
+            # -------- upper edge -----
+        if self.pos.y  > 0:
+                self.pos.y = 0
+                #self.move.y *= -1
+                self.move = pygame.math.Vector2(0,0)
+            # -------- right edge -----
+        if self.pos.x  > Zviewer.world_width:
+                self.pos.x = Zviewer.world_width
+                self.move = pygame.math.Vector2(0,0)
+               
+            # --------- lower edge ------------
+        if self.pos.y   < -Zviewer.world_heigth:
+                self.pos.y = -Zviewer.world_heigth
+                self.move = pygame.math.Vector2(0,0)
+    
 
 
     def create_image(self):
@@ -1111,7 +1130,12 @@ class Zviewer(object):
 
     def new_wave(self):
         self.wave += 1
-        Flytext(100,400, "Approaching wave {}".format(self.wave))
+        Flytext(pos=pygame.math.Vector2(Zviewer.width//2, Zviewer.height // 2),
+                move=pygame.math.Vector2(0, -10),
+                text="Approaching wave {}".format(self.wave), 
+                color=(200,0,0),
+                fontsize = 15
+                )
         if self.wave > 2:
             for b in range(1, self.wave - 1 ):
                 Zombie_Boss()
@@ -1261,13 +1285,17 @@ class Zviewer(object):
                         continue # not for player
                     sprite.move += -v
                     
-                    
-                moving = True
             if pressed_keys[pygame.K_s]:
                 v = pygame.math.Vector2(vel1,0)
                 v.rotate_ip(self.player1.angle)
-                self.player1.move += -v
-                moving = True
+                #self.player1.move += v
+                for sprite in self.allgroup:
+                    if sprite.number == 0:
+                        continue # not for player
+                    sprite.move += v
+                    
+                    
+                    
             if not moving:
                 self.player1.move = pygame.math.Vector2(0,0)
 
