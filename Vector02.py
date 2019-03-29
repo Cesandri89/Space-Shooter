@@ -156,39 +156,42 @@ class Mouse(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.control = control # "mouse" "keyboard1" "keyboard2"
         self.pushed = False
+        self.aiming = False
 
     def create_image(self):
-
-        self.image = pygame.surface.Surface((self.radius*0.5, self.radius*0.5))
-        delta1 = 12.5
-        delta2 = 25
-        w = self.radius*0.5 / 100.0
-        h = self.radius*0.5 / 100.0
-        # pointing down / up
-        for y in (0,2,4):
-            pygame.draw.line(self.image,(self.r-delta2,self.g,self.b),
-                         (35*w,0+y),(50*w,15*h+y),2)
-            pygame.draw.line(self.image,(self.r-delta2,self.g,self.b),
-                         (50*w,15*h+y),(65*w,0+y),2)
-
-            pygame.draw.line(self.image,(self.r-delta2,self.g,self.b),
-                         (35*w,100*h-y),(50*w,85*h-y),2)
-            pygame.draw.line(self.image,(self.r-delta2,self.g,self.b),
-                         (50*w,85*h-y),(65*w,100*h-y),2)
-        # pointing right / left
-        for x in (0,2,4):
-            pygame.draw.line(self.image,(self.r-delta2,self.g,self.b),
-                         (0+x,35*h),(15*w+x,50*h),2)
-            pygame.draw.line(self.image,(self.r-delta2,self.g,self.b),
-                         (15*w+x,50*h),(0+x,65*h),2)
-
-            pygame.draw.line(self.image,(self.r-delta2,self.g,self.b),
-                         (100*w-x,35*h),(85*w-x,50*h),2)
-            pygame.draw.line(self.image,(self.r-delta2,self.g,self.b),
-                         (85*w-x,50*h),(100*w-x,65*h),2)
-        self.image.set_colorkey((0,0,0))
-        self.rect=self.image.get_rect()
-        self.rect.center = self.x, self.y
+        pass
+        #self.image = pygame.image.load("aim.png").convert_alpha()
+        #self.image = pygame.transform.scale(self.image,(50,50))
+        #self.image.set_colorkey((255,255,255))
+  #      delta1 = 12.5
+   #     delta2 = 25
+    #    w = self.radius*0.5 / 100.0
+    #    h = self.radius*0.5 / 100.0
+    #    # pointing down / up
+    #    for y in (0,2,4):
+    #        pygame.draw.line(self.image,(self.r-delta2,self.g,self.b),
+    #                     (35*w,0+y),(50*w,15*h+y),2)
+    #        pygame.draw.line(self.image,(self.r-delta2,self.g,self.b),
+    #                     (50*w,15*h+y),(65*w,0+y),2)
+    #
+    #        pygame.draw.line(self.image,(self.r-delta2,self.g,self.b),
+    #                     (35*w,100*h-y),(50*w,85*h-y),2)
+    #        pygame.draw.line(self.image,(self.r-delta2,self.g,self.b),
+    #                     (50*w,85*h-y),(65*w,100*h-y),2)
+    #    # pointing right / left
+    #    for x in (0,2,4):
+    #       pygame.draw.line(self.image,(self.r-delta2,self.g,self.b),
+    #                     (0+x,35*h),(15*w+x,50*h),2)
+    #        pygame.draw.line(self.image,(self.r-delta2,self.g,self.b),
+    #                     (15*w+x,50*h),(0+x,65*h),2)
+#
+ #           pygame.draw.line(self.image,(self.r-delta2,self.g,self.b),
+  #                       (100*w-x,35*h),(85*w-x,50*h),2)
+   #         pygame.draw.line(self.image,(self.r-delta2,self.g,self.b),
+    #                     (85*w-x,50*h),(100*w-x,65*h),2)
+     #   self.image.set_colorkey((0,0,0))
+      #  self.rect=self.image.get_rect()
+       # self.rect.center = self.x, self.y
 
     def update(self, seconds):
         if self.control == "mouse":
@@ -435,30 +438,30 @@ class VectorSprite(pygame.sprite.Sprite):
 
 
 class Flytext(VectorSprite):
-    
+
     def _overwrite_parameters(self):
         """a text flying upward and for a short time and disappearing"""
         self._layer = 7  # order of sprite layers (before / behind other sprites)
-    
+
         #pygame.sprite.Sprite.__init__(self, self.groups)  # THIS LINE IS IMPORTANT !!
         # max_age
-      
+
         #self.x, self.y = x, y
-        
+
         #self.duration = duration  # duration of flight in seconds
         #self.acc = acceleration_factor  # if < 1, Text moves slower. if > 1, text moves faster.
         #self.age = 0 - delay
 
-        
+
     def create_image(self):
         self.image = make_text(self.text, self.color, self.fontsize)  # font 22
         self.rect = self.image.get_rect()
         #self.rect.center = (self.x, self.y)
-        
-   
+
+
 
 class Cloud(VectorSprite):
-    
+
     def _overwrite_parameters(self):
         self.speed = 100
         self.damage = 1
@@ -470,22 +473,47 @@ class Cloud(VectorSprite):
         self.weapons = ["default","superbullet"]
         self.switch_number = 0
         self.ammotime = 0
-        self.pos.x = random.randint(0, Zviewer.world_width)
-        self.pos.y = -random.randint(0, Zviewer.world_heigth)
         print("Wolke", self.pos)
 
     def create_image(self):
-        
+
         self.image = pygame.Surface((180,80))
-        self.image.set_colorkey((0,0,0))
         pygame.draw.ellipse(self.image,(202,198,190),[22,22,138,58],0)
         pygame.draw.ellipse(self.image,(202,198,190),[30,16,64,50],0)
         pygame.draw.ellipse(self.image,(202,198,190),[78,16,98,64],0)
-        
-        
+ 
+        self.image.set_colorkey((0,0,0))
+        self.image.convert_alpha() 
         self.image0 = self.image.copy()
         self.rect = self.image.get_rect()
-       
+
+
+class Wall(VectorSprite):
+
+    def _overwrite_parameters(self):
+        self.damage = random.randint(1,3)
+        self.static = True
+        
+    def create_image(self):
+        #self.image = Zviewer.images["wall"]
+        #self.image = pygame.transform.scale(self.image,(200,200)
+        self.image = pygame.Surface((200,200))
+        
+        pygame.draw.line(self.image, (255,0,0), (0,0), (200,200),16)
+        pygame.draw.line(self.image, (255,0,0), (200,0), (0,200), 16)
+        
+        pygame.draw.line(self.image, (180,0,0), (0,0), (200,200),11)
+        pygame.draw.line(self.image, (180,0,0), (200,0), (0,200), 11)
+        
+        pygame.draw.line(self.image, (150,0,0), (0,0), (200,200),4)
+        pygame.draw.line(self.image, (150,0,0), (200,0), (0,200), 4)
+        
+        
+        self.image.set_colorkey((0,0,0))
+        self.image.convert_alpha()
+        self.image0 = self.image.copy()
+        self.rect = self.image.get_rect()
+        
 
 
 class Explosion():
@@ -553,25 +581,25 @@ class Player(VectorSprite):
     def wallbounce(self):
         # ---- bounce / kill on screen edge ----
         # ------- left edge ----
-        if self.pos.x < 0:
-                self.pos.x = 0
+        if self.pos.x < 400:
+                self.pos.x = 400
                 self.move = pygame.math.Vector2(0,0)
                 #self.move.x *= -1
             # -------- upper edge -----
-        if self.pos.y  > 0:
-                self.pos.y = 0
+        if self.pos.y  > -400:
+                self.pos.y = -400
                 #self.move.y *= -1
                 self.move = pygame.math.Vector2(0,0)
             # -------- right edge -----
         if self.pos.x  > Zviewer.world_width:
                 self.pos.x = Zviewer.world_width
                 self.move = pygame.math.Vector2(0,0)
-               
+
             # --------- lower edge ------------
         if self.pos.y   < -Zviewer.world_heigth:
                 self.pos.y = -Zviewer.world_heigth
                 self.move = pygame.math.Vector2(0,0)
-    
+
 
 
     def create_image(self):
@@ -967,8 +995,14 @@ class Ammo(Zombie):
 #       if self.time < 10:
 #           p.
 
-class Money(Zombie):
+class Money(VectorSprite):
+    
+    #def _overwrite_parameters(self):
+        #self.pos.x = random.randint(0, Zviewer.world_width)
+        #self.pos.y = -random.randint(0 , Zviewer.world_heigth)
 
+        
+        
     def create_image(self):
         self.image = Zviewer.images["money"]
         self.image.set_colorkey((0,0,0))
@@ -984,6 +1018,7 @@ class Zviewer(object):
     height = 0
     world_width = 10000
     world_heigth = 10000
+    world = []
 
     def __init__(self, width=640, height=400, fps=120):
         """Initialize pygame, window, background, font,...
@@ -1000,6 +1035,7 @@ class Zviewer(object):
         self.fps = fps
         self.playtime = 0.0
         self.wave = 0
+
         # ------ background images ------
         self.backgroundfilenames = [] # every .jpg file in folder 'data'
         try:
@@ -1025,6 +1061,7 @@ class Zviewer(object):
             j.init()
         Zviewer.images = {}
         self.load_images()
+        self.load_world()
         self.paint()
         self.loadbackground()
         self.prepare_sounds()
@@ -1032,16 +1069,24 @@ class Zviewer(object):
         Game.cursor = 0
         Game.language = "english"
 
+    def load_world(self):
+        with open("world.txt", "r") as f:
+            for line in f.readlines():
+                self.world.append(list(line.strip()))
+        #print("this is the world:")
+        #print(self.world)
+
     def load_images(self):
         Zviewer.images["player1"] = pygame.image.load("player1.png").convert_alpha()
         Zviewer.images["player2"] = pygame.image.load("player2.png").convert_alpha()
-        
+
         Zviewer.images["zombiewarrior"] = pygame.image.load("enemy1.png").convert_alpha()
         Zviewer.images["zombieberserker"] = pygame.image.load("spaceship1-Black.png").convert_alpha()
         Zviewer.images["zombiedefault"] = pygame.image.load("spaceship1-orange.png").convert_alpha()
         Zviewer.images["zombieboss"] = pygame.image.load("redboss.png").convert_alpha()
         Zviewer.images["ammo"] = pygame.image.load("ammo.png").convert_alpha()
         Zviewer.images["money"] = pygame.image.load("money.png").convert_alpha()
+        Zviewer.images["wall"] = pygame.image.load("wall.png").convert_alpha()
 
 
         ## resize all to 100,100
@@ -1081,9 +1126,11 @@ class Zviewer(object):
         self.flytextgroup = pygame.sprite.Group()
         self.cloudgroup = pygame.sprite.Group()
         self.powerupsgroup = pygame.sprite.Group()
+        self.wallgroup = pygame.sprite.Group()
         Player.groups = self.allgroup, self.playergroup
         Mouse.groups = self.allgroup, self.mousegroup
         Rocket.groups = self.allgroup, self.rocketgroup
+        Wall.groups = self.allgroup , self.wallgroup 
         Rocket_Enemy.groups = self.allgroup, self.rocketenemygroup
         SuperRocket.groups = self.allgroup, self.rocketgroup
         Cloud.groups = self.allgroup, self.cloudgroup
@@ -1108,8 +1155,26 @@ class Zviewer(object):
 
         self.player1 =  Player(warp_on_edge=True, pos=pygame.math.Vector2(Zviewer.width/2,-Zviewer.height/2))
         #self.player2 =  Player(warp_on_edge=True, pos=pygame.math.Vector2(Zviewer.width/2+100,-Zviewer.height/2))
-        for _ in range(3000):
-            Cloud()
+        # ------- create clouds from World ------
+        # 200 pixel per char
+        #for _ in range(2000):
+        #    Money()
+            
+        for y, line in enumerate(Zviewer.world):
+            for x, char in enumerate(line):
+                
+                if char == "c":
+                    Cloud(pos=pygame.math.Vector2(x*200, -y*200))
+                    
+                elif char == "#":                   
+                    Wall(pos=pygame.math.Vector2(x*200, -y*200))
+               
+                elif char == "A":
+                    Zombie_Warrior(pos=pygame.math.Vector2(x*200, -y*200))
+                
+                elif char == ".":
+                    if random.random() < 0.99:
+                        Money(pos=pygame.math.Vector2(x*200, -y*200))
 
 
 
@@ -1132,7 +1197,7 @@ class Zviewer(object):
         self.wave += 1
         Flytext(pos=pygame.math.Vector2(Zviewer.width//2, Zviewer.height // 2),
                 move=pygame.math.Vector2(0, -10),
-                text="Approaching wave {}".format(self.wave), 
+                text="Approaching wave {}".format(self.wave),
                 color=(200,0,0),
                 fontsize = 15
                 )
@@ -1192,6 +1257,12 @@ class Zviewer(object):
                             self.superschuss(self.player1)
                             self.supertime = 0
 
+                    for mouse in self.mousegroup:
+                        if mouse.aiming:
+                            mouse.update()
+                        elif not mouse.aiming:
+                            mouse.kill()
+
                     # ---- shooting rockets for player2 ----
                     #if event.key == pygame.K_SPACE:
                     #   self.player2.shoot()
@@ -1229,16 +1300,14 @@ class Zviewer(object):
             if random.random() < 0.020:
                 Zombie_Berserker()
 
-            if random.random() < 0.01:
-                Zombie_Warrior()
+            #if random.random() < 0.01:
+             #   Zombie_Warrior()
 
             #---- new power up ----
             if random.random() < 0.008:
                 Ammo()
 
-            if random.random() < 0.05:
-                Money()
-
+            
 
             pointsboth = self.player1.points #+ self.player2.points)
             if pointsboth > 0 and pointsboth % 15 == 0:
@@ -1280,11 +1349,18 @@ class Zviewer(object):
                 v = pygame.math.Vector2(vel1,0)
                 v.rotate_ip(self.player1.angle)
                 #self.player1.move += v
-                for sprite in self.allgroup:
-                    if sprite.number == 0:
-                        continue # not for player
-                    sprite.move += -v
+                ok = True
+                for w in self.wallgroup:
+                    future = w.pos-v
                     
+                    if future.x > Zviewer.world_width:
+                        ok = False
+                if ok:
+                    for sprite in self.allgroup:
+                        if sprite.number == 0:
+                            continue # not for player
+                        sprite.move += -v
+
             if pressed_keys[pygame.K_s]:
                 v = pygame.math.Vector2(vel1,0)
                 v.rotate_ip(self.player1.angle)
@@ -1293,9 +1369,9 @@ class Zviewer(object):
                     if sprite.number == 0:
                         continue # not for player
                     sprite.move += v
-                    
-                    
-                    
+
+
+
             if not moving:
                 self.player1.move = pygame.math.Vector2(0,0)
 
@@ -1372,10 +1448,10 @@ class Zviewer(object):
             # --------- collision detection between player and power up ammo/Money ------
             for p in self.playergroup:
                 crashgroup = pygame.sprite.spritecollide(p, self.powerupsgroup,
-                             False, pygame.sprite.collide_mask)
+                             False, pygame.sprite.collide_rect)
                 for u in crashgroup:
                     print("crashgroup", u)
-                    what = u.__class__.__name__ 
+                    what = u.__class__.__name__
                     if what == "Ammo":
                         p.ammotime = p.age + 10
                     elif what == "Money":
@@ -1387,7 +1463,7 @@ class Zviewer(object):
             # --------- collision detection between player and enemy_rocket -----
             for r in self.rocketenemygroup:
                 crashgroup = pygame.sprite.spritecollide(r, self.playergroup,
-                             False, pygame.sprite.collide_mask)
+                             False, pygame.sprite.collide_rect)
 
                 for p in crashgroup:
                     p.hitpoints -= 0.5
@@ -1395,7 +1471,7 @@ class Zviewer(object):
             # --------- collision detection between enemies and rocket -----
             for e in self.enemygroup:
                 crashgroup = pygame.sprite.spritecollide(e, self.rocketgroup,
-                             False, pygame.sprite.collide_mask)
+                             False, pygame.sprite.collide_rect)
                 #print("collided!")
                 for r in crashgroup:
                 #   if r.__class__.__name__ == "Rocket":
@@ -1417,6 +1493,33 @@ class Zviewer(object):
                     #e.kill()
 
 
+            # --------- collision detection between player and wall -----
+            for p in self.playergroup:
+                crashgroup = pygame.sprite.spritecollide(p, self.wallgroup,
+                             False, pygame.sprite.collide_rect)
+                
+                for w in crashgroup:
+                    #.hitpoints -= r.damage
+                    p.hitpoints -= w.damage
+                    Explosion(p.pos, color=(255,0,0), sparksmin=2, sparksmax=3)
+                    #elastic_collision(w,p)
+                    #p.pos += p.move* -5
+                    p.move = pygame.math.Vector2(0,0)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             # --------- collision detection between enemy and other enemy -----
             for e in self.enemygroup:
                 crashgroup = pygame.sprite.spritecollide(e, self.enemygroup,
@@ -1427,12 +1530,12 @@ class Zviewer(object):
             # --------- collision detection between player and enemy -----
             for p in self.playergroup:
                 crashgroup = pygame.sprite.spritecollide(p, self.enemygroup,
-                             False, pygame.sprite.collide_mask)
+                             False, pygame.sprite.collide_rect)
                 #print("collided!")
                 for e in crashgroup:
                     p.hitpoints -= 1
                     e.hitpoints -= random.randint(5,10)
-                  #  elastic_collision(p,e)
+                  # elastic_collision(p,e)
                     p.points += 1
                     print(p.points)
                     #e.kill()
@@ -1441,7 +1544,7 @@ class Zviewer(object):
             # --------- collision detection player1 and player2  -----
             for p in self.playergroup:
                 crashgroup = pygame.sprite.spritecollide(p, self.playergroup,
-                             False, pygame.sprite.collide_mask)
+                             False, pygame.sprite.collide_rect)
                 #print("collided!")
                 for r in crashgroup:
                     if p.number < r.number:
@@ -1550,14 +1653,14 @@ class Zviewer(object):
                         if command == "speed":
                             self.activeplayer.speed += 1
                             print(self.activeplayer.speed)
-                        
-                        #improving player1 spaceship 
+
+                        #improving player1 spaceship
                         if command == "spaceship":
                             Game.menuitems = Game.spaceshipmenu[:]
-                           
+
                         if command == "spaceship1":
                             pass
-                            #self.activeplayer.image = 
+                            #self.activeplayer.image =
 
 
                     #   if command == "
