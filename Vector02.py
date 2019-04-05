@@ -1590,30 +1590,10 @@ class Zviewer(object):
             self.wall_x,self.wall_y = (p.pos.x + self.width/2 + self.deltax)* self.factor, - (p.pos.y - self.height/2 + self.deltay) * self.factor
             if self.wall_x < 200 and self.wall_y < 200:
                 self.powerup_name = p.__class__.__name__
-                if self.powerup_name == "Money":
-                    self.powerup_color = (0,255,0)
-                    
-                
-                
-                
-                
-                
-                
+                self.powerup_color = (191,191,191)
+            
                 pygame.draw.rect(self.screen, self.powerup_color, (self.wall_x,self.wall_y,2,2))  
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+            
         for e in self.enemygroup:
             self.enemy_x,self.enemy_y = (e.pos.x + self.width / 2 + self.deltax ) *  self.factor, -(e.pos.y - self.height/2 + self.deltay) * self.factor
             if self.enemy_x < 200 and self.enemy_y < 200:
