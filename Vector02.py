@@ -1094,33 +1094,33 @@ class Explosion2(VectorSprite):
     def update(self, seconds):
         VectorSprite.update(self, seconds)
         oldcenter= self.rect.center
-        if self.age > 0.2:
+        if self.age > 0.1:
             self.create_image("exp_anim1")
-        if self.age > 0.4:
+        if self.age > 0.2:
             self.create_image("exp_anim2")
-        if self.age > 0.6:
+        if self.age > 0.3:
             self.create_image("exp_anim3")
-        if self.age > 0.8:
+        if self.age > 0.4:
             self.create_image("exp_anim4")
-        if self.age > 1.0:
+        if self.age > 0.5:
             self.create_image("exp_anim5")
-        if self.age > 1.2:
+        if self.age > 0.6:
             self.create_image("exp_anim6")
-        if self.age > 1.4:
+        if self.age > 0.7:
             self.create_image("exp_anim7")
-        if self.age > 1.6:
+        if self.age > 0.8:
             self.create_image("exp_anim8")
-        if self.age > 1.8:
+        if self.age > 0.9:
             self.create_image("exp_anim9")
-        if self.age > 2.0:
+        if self.age > 1.0:
             self.create_image("exp_anim10")
-        if self.age > 2.2:
+        if self.age > 1.1:
             self.create_image("exp_anim11")
-        if self.age > 2.4:
+        if self.age > 1.2:
             self.create_image("exp_anim12")
-        if self.age > 2.6:
+        if self.age > 1.3:
             self.create_image("exp_anim13")
-        if self.age > 2.8:
+        if self.age > 1.4:
             self.create_image("exp_anim14")
         self.rect.center = oldcenter
             
