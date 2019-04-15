@@ -1077,6 +1077,55 @@ class Ammo(Zombie):
 #       if self.time < 10:
 #           p.
 
+class Explosion2(VectorSprite):
+    
+    def _overwrite_parameters(self):
+        #self.images = ["exp_anim1", "exp_anim12","exp_anim3","exp_anim4","exp_anim5","exp_anim6","exp_anim7","exp_anim8","exp_anim9","exp_anim10","exp_anim11","exp_anim12","exp_anim13","exp_anim13","exp_anim14" ]
+        self.max_age = 4 # seconds
+    
+    
+    def create_image(self, outlook = "exp_anim1"):
+        self.image = Zviewer.images[outlook]
+        self.image.convert_alpha()
+        self.image0 = self.image.copy()
+        self.rect = self.image.get_rect()
+         
+        
+    def update(self, seconds):
+        VectorSprite.update(self, seconds)
+        oldcenter= self.rect.center
+        if self.age > 0.2:
+            self.create_image("exp_anim1")
+        if self.age > 0.4:
+            self.create_image("exp_anim2")
+        if self.age > 0.6:
+            self.create_image("exp_anim3")
+        if self.age > 0.8:
+            self.create_image("exp_anim4")
+        if self.age > 1.0:
+            self.create_image("exp_anim5")
+        if self.age > 1.2:
+            self.create_image("exp_anim6")
+        if self.age > 1.4:
+            self.create_image("exp_anim7")
+        if self.age > 1.6:
+            self.create_image("exp_anim8")
+        if self.age > 1.8:
+            self.create_image("exp_anim9")
+        if self.age > 2.0:
+            self.create_image("exp_anim10")
+        if self.age > 2.2:
+            self.create_image("exp_anim11")
+        if self.age > 2.4:
+            self.create_image("exp_anim12")
+        if self.age > 2.6:
+            self.create_image("exp_anim13")
+        if self.age > 2.8:
+            self.create_image("exp_anim14")
+        self.rect.center = oldcenter
+            
+    
+
 class Mine(VectorSprite):
     
     def _overwrite_parameters(self):
@@ -1085,6 +1134,8 @@ class Mine(VectorSprite):
         self._layer = 2
         
     def create_image(self):
+        
+        #self.state = ["
         self.image = pygame.Surface((50,50))
         
         pygame.draw.circle(self.image,(1,1,1),(25,25),20)
@@ -1100,9 +1151,9 @@ class Mine(VectorSprite):
         self.rect = self.image.get_rect()
         
     def explode(self):
-		
-		VectorSprite.kill(self)  
-		  
+        
+        VectorSprite.kill(self)  
+          
     
 
 
@@ -1221,10 +1272,20 @@ class Zviewer(object):
         Zviewer.images["ammo"] = pygame.image.load("ammo.png").convert_alpha()
         Zviewer.images["money"] = pygame.image.load("money.png").convert_alpha()
         Zviewer.images["terrain"] = pygame.image.load("back.png").convert_alpha()
-		Zviewer.images["exp_anim1"] = pygame.image.load("exp_anim1.png").convert_alpha()
-		Zviewer.images["exp_anim2"] = pygame.image.load("exp_anim2.png").convert_alpha()
-		Zviewer.images["exp_anim3"] = pygame.image.load("exp_anim3.png").convert_alpha()
-		Zviewer.images["exp_anim4"] = pygame.image.load("exp_anim4.png").convert_alpha()
+        Zviewer.images["exp_anim1"] = pygame.image.load("exp_anim1.png").convert_alpha()
+        Zviewer.images["exp_anim2"] = pygame.image.load("exp_anim2.png").convert_alpha()
+        Zviewer.images["exp_anim3"] = pygame.image.load("exp_anim3.png").convert_alpha()
+        Zviewer.images["exp_anim4"] = pygame.image.load("exp_anim4.png").convert_alpha()
+        Zviewer.images["exp_anim5"] = pygame.image.load("exp_anim5.png").convert_alpha()
+        Zviewer.images["exp_anim6"] = pygame.image.load("exp_anim6.png").convert_alpha()
+        Zviewer.images["exp_anim7"] = pygame.image.load("exp_anim7.png").convert_alpha()
+        Zviewer.images["exp_anim8"] = pygame.image.load("exp_anim8.png").convert_alpha()
+        Zviewer.images["exp_anim9"] = pygame.image.load("exp_anim9.png").convert_alpha()
+        Zviewer.images["exp_anim10"] = pygame.image.load("exp_anim10.png").convert_alpha()
+        Zviewer.images["exp_anim11"] = pygame.image.load("exp_anim11.png").convert_alpha()
+        Zviewer.images["exp_anim12"] = pygame.image.load("exp_anim12.png").convert_alpha()
+        Zviewer.images["exp_anim13"] = pygame.image.load("exp_anim13.png").convert_alpha()
+        Zviewer.images["exp_anim14"] = pygame.image.load("exp_anim14.png").convert_alpha()
         ## resize all to 100,100
         for i in Zviewer.images.keys():
             if "player" in i:
@@ -1276,6 +1337,7 @@ class Zviewer(object):
         Ammo.groups  = self.allgroup, self.powerupsgroup
         Money.groups = self.allgroup, self.powerupsgroup
         VectorSprite.groups = self.allgroup
+        Explosion2.groups = self.allgroup , self.explosiongroup
         Terrain.groups = self.allgroup, self.terraingroup
         WaveScreen.groups = self.allgroup , self.wavescreengroup
         Flytext.groups = self.allgroup, self.flytextgroup
@@ -1435,9 +1497,10 @@ class Zviewer(object):
                     #   self.player2.switch()
 
                     if event.key == pygame.K_z:
-                        Zombie()
-                        Cloud()
-                        Mine()
+                        #Zombie()
+                        #Cloud()
+                        #Mine()
+                        Explosion2(pos=pygame.math.Vector2(400,-200))
 
 
 
