@@ -502,25 +502,16 @@ class Cloud(VectorSprite):
 
     def _overwrite_parameters(self):
         self.speed = 100
-        self.damage = 1
-        self.hitpoints = 100
-        self.shots = 1
-        self.points = 0
-        self._layer = -5
-        self.active_weapon = "default"
-        self.weapons = ["default","superbullet"]
-        self.switch_number = 0
-        self.ammotime = 0
-        print("Wolke", self.pos)
-
+        self._layer = 0
+        self.images = ["cloud1","cloud2","cloud3","cloud4","cloud5"]
+        
     def create_image(self):
-
-        self.image = pygame.Surface((180,80))
-        pygame.draw.ellipse(self.image,(202,198,190),[22,22,138,58],0)
-        pygame.draw.ellipse(self.image,(202,198,190),[30,16,64,50],0)
-        pygame.draw.ellipse(self.image,(202,198,190),[78,16,98,64],0)
-
-        self.image.set_colorkey((0,0,0))
+        
+        self.image = Zviewer.images[random.choice(self.images)]
+        #pygame.draw.ellipse(self.image,(202,198,190),[22,22,138,58],0)
+        #pygame.draw.ellipse(self.image,(202,198,190),[30,16,64,50],0)
+        #pygame.draw.ellipse(self.image,(202,198,190),[78,16,98,64],0)
+        #self.image.set_colorkey((0,0,0))
         self.image.convert_alpha()
         self.image0 = self.image.copy()
         self.rect = self.image.get_rect()
@@ -738,7 +729,20 @@ class Player(VectorSprite):
                     SuperRocket(pos=p+t1, move=v, angle=a,bossnumber = self.number)
 
 
+class Super_Enemy_Rocket(VectorSprite):
 
+
+    def _overwrite_parameters(self):
+        self.kill_on_edge = True
+        self.damage = random.randint(2,30)
+        
+    def create_image(self):
+        self.image = Zviewer.images["super_enemy_rocket"]
+        self.image.set_colorkey((0,0,0))
+        self.image.convert_alpha()
+        self.image0 = self.image.copy()
+        self.rect = self.image.get_rect()
+        
 
 class Smoke(VectorSprite):
 
@@ -974,6 +978,18 @@ class Zombie_Boss(Zombie):
         angle = pygame.math.Vector2(1,0).angle_to(self.move)
         self.set_angle(angle)
 
+        if random.random() < 0.06:
+            if 0 in VectorSprite.numbers:
+                 p = pygame.math.Vector2(self.pos.x, self.pos.y)
+                 playerpos = VectorSprite.numbers[0].pos
+                 dist =  playerpos - self.pos
+                 dist.normalize_ip()
+                 dist *= 200 # speed of rocket!
+                 a  = 0 # pygame.math.Vector2(1,0).angle_to(dist)
+                      
+            
+            Super_Enemy_Rocket(pos=p, angle=a, move=dist,max_age=5)
+
         #spawn random zombies
         #if random.random() < 0.2:
         #    Zombie_Berserker()
@@ -1082,7 +1098,7 @@ class Explosion2(VectorSprite):
     def _overwrite_parameters(self):
         #self.images = ["exp_anim1", "exp_anim12","exp_anim3","exp_anim4","exp_anim5","exp_anim6","exp_anim7","exp_anim8","exp_anim9","exp_anim10","exp_anim11","exp_anim12","exp_anim13","exp_anim13","exp_anim14" ]
         self.max_age = 4 # seconds
-    
+        self.damage = random.randint(3,5)
     
     def create_image(self, outlook = "exp_anim1"):
         self.image = Zviewer.images[outlook]
@@ -1122,10 +1138,11 @@ class Explosion2(VectorSprite):
             self.create_image("exp_anim13")
         if self.age > 1.4:
             self.create_image("exp_anim14")
-        self.rect.center = oldcenter
+            VectorSprite.kill(self)
             
-    
-
+        self.rect.center = oldcenter
+        
+        
 class Mine(VectorSprite):
     
     def _overwrite_parameters(self):
@@ -1150,21 +1167,7 @@ class Mine(VectorSprite):
         self.image0 = self.image.copy()
         self.rect = self.image.get_rect()
         
-    def explode(self):
-        
-        VectorSprite.kill(self)  
-          
-    
-
-
-
-
-
-
-
-
-
-
+  
 
 
 class Money(VectorSprite):
@@ -1201,7 +1204,9 @@ class Zviewer(object):
         Zviewer.width = width    # make global readable
         Zviewer.height = height
         self.screen = pygame.display.set_mode((self.width, self.height), pygame.DOUBLEBUF)
-        self.background = pygame.image.load("sky.png")#pygame.Surface(self.screen.get_size()).convert()
+        #self.background = pygame.image.load("sky.png")
+        self.background = pygame.Surface(self.screen.get_size()).convert()
+        self.background.fill((200,200,240))
         self.menu_background = pygame.image.load("menu_sky.png").convert_alpha()
         #self.background.fill((255,255,255)) # fill background white
         self.clock = pygame.time.Clock()
@@ -1240,7 +1245,7 @@ class Zviewer(object):
         self.load_images()
         self.load_world()
         self.paint()
-        self.loadbackground()
+        #self.loadbackground()
         self.prepare_sounds()
         self.start = True
         if self.start:
@@ -1261,31 +1266,39 @@ class Zviewer(object):
         #print(self.world)
 
     def load_images(self):
-        Zviewer.images["spaceship1"] = pygame.image.load("spaceship1.png").convert_alpha()
+        Zviewer.images["spaceship1"] = pygame.image.load(os.path.join("player","spaceship1.png")).convert_alpha()
         #Zviewer.images["sky_background"] = pygame.image.load("sky_background.png").convert_alpha()
-        Zviewer.images["spaceship2"] = pygame.image.load("spaceship2.png").convert_alpha()
+        Zviewer.images["spaceship2"] = pygame.image.load(os.path.join("player","spaceship2.png")).convert_alpha()
         #Zviewer.images["moon"] = pygame.image.load("moon.png").convert_alpha()
         Zviewer.images["zombiewarrior"] = pygame.image.load("enemy1.png").convert_alpha()
-        Zviewer.images["zombieberserker"] = pygame.image.load("spaceship1-orange.png").convert_alpha()
-        Zviewer.images["zombiedefault"] = pygame.image.load("spaceship1-Black.png").convert_alpha()
-        Zviewer.images["zombieboss"] = pygame.image.load("redboss.png").convert_alpha()
-        Zviewer.images["ammo"] = pygame.image.load("ammo.png").convert_alpha()
-        Zviewer.images["money"] = pygame.image.load("money.png").convert_alpha()
+        Zviewer.images["zombieberserker"] = pygame.image.load(os.path.join("enemies","spaceship1-orange.png")).convert_alpha()
+        Zviewer.images["zombiedefault"] = pygame.image.load(os.path.join("enemies","spaceship1-Black.png")).convert_alpha()
+        Zviewer.images["zombieboss"] = pygame.image.load(os.path.join("enemies","redboss.png")).convert_alpha()
+        Zviewer.images["ammo"] = pygame.image.load(os.path.join("power ups","ammo.png")).convert_alpha()
+        Zviewer.images["super_enemy_rocket"] = pygame.image.load(os.path.join("bullets","super_enemy_bullet.png")).convert_alpha()
+        
+        Zviewer.images["money"] = pygame.image.load(os.path.join("power ups","money.png")).convert_alpha()
         Zviewer.images["terrain"] = pygame.image.load("back.png").convert_alpha()
-        Zviewer.images["exp_anim1"] = pygame.image.load("exp_anim1.png").convert_alpha()
-        Zviewer.images["exp_anim2"] = pygame.image.load("exp_anim2.png").convert_alpha()
-        Zviewer.images["exp_anim3"] = pygame.image.load("exp_anim3.png").convert_alpha()
-        Zviewer.images["exp_anim4"] = pygame.image.load("exp_anim4.png").convert_alpha()
-        Zviewer.images["exp_anim5"] = pygame.image.load("exp_anim5.png").convert_alpha()
-        Zviewer.images["exp_anim6"] = pygame.image.load("exp_anim6.png").convert_alpha()
-        Zviewer.images["exp_anim7"] = pygame.image.load("exp_anim7.png").convert_alpha()
-        Zviewer.images["exp_anim8"] = pygame.image.load("exp_anim8.png").convert_alpha()
-        Zviewer.images["exp_anim9"] = pygame.image.load("exp_anim9.png").convert_alpha()
-        Zviewer.images["exp_anim10"] = pygame.image.load("exp_anim10.png").convert_alpha()
-        Zviewer.images["exp_anim11"] = pygame.image.load("exp_anim11.png").convert_alpha()
-        Zviewer.images["exp_anim12"] = pygame.image.load("exp_anim12.png").convert_alpha()
-        Zviewer.images["exp_anim13"] = pygame.image.load("exp_anim13.png").convert_alpha()
-        Zviewer.images["exp_anim14"] = pygame.image.load("exp_anim14.png").convert_alpha()
+        Zviewer.images["exp_anim1"] = pygame.image.load(os.path.join("animations","exp_anim1.png")).convert_alpha()
+        Zviewer.images["exp_anim2"] = pygame.image.load(os.path.join("animations","exp_anim2.png")).convert_alpha()
+        Zviewer.images["exp_anim3"] = pygame.image.load(os.path.join("animations","exp_anim3.png")).convert_alpha()
+        Zviewer.images["exp_anim4"] = pygame.image.load(os.path.join("animations","exp_anim4.png")).convert_alpha()
+        Zviewer.images["exp_anim5"] = pygame.image.load(os.path.join("animations","exp_anim5.png")).convert_alpha()
+        Zviewer.images["exp_anim6"] = pygame.image.load(os.path.join("animations","exp_anim6.png")).convert_alpha()
+        Zviewer.images["exp_anim7"] = pygame.image.load(os.path.join("animations","exp_anim7.png")).convert_alpha()
+        Zviewer.images["exp_anim8"] = pygame.image.load(os.path.join("animations","exp_anim8.png")).convert_alpha()
+        Zviewer.images["exp_anim9"] = pygame.image.load(os.path.join("animations","exp_anim9.png")).convert_alpha()
+        Zviewer.images["exp_anim10"] = pygame.image.load(os.path.join("animations","exp_anim10.png")).convert_alpha()
+        Zviewer.images["exp_anim11"] = pygame.image.load(os.path.join("animations","exp_anim11.png")).convert_alpha()
+        Zviewer.images["exp_anim12"] = pygame.image.load(os.path.join("animations","exp_anim12.png")).convert_alpha()
+        Zviewer.images["exp_anim13"] = pygame.image.load(os.path.join("animations","exp_anim13.png")).convert_alpha()
+        Zviewer.images["exp_anim14"] = pygame.image.load(os.path.join("animations","exp_anim14.png")).convert_alpha()
+        Zviewer.images["cloud1"] = pygame.image.load(os.path.join("clouds","cloud1.png")).convert_alpha()
+        Zviewer.images["cloud2"] = pygame.image.load(os.path.join("clouds","cloud2.png")).convert_alpha()
+        Zviewer.images["cloud3"] = pygame.image.load(os.path.join("clouds","cloud3.png")).convert_alpha()
+        Zviewer.images["cloud4"] = pygame.image.load(os.path.join("clouds","cloud4.png")).convert_alpha()
+        Zviewer.images["cloud5"] = pygame.image.load(os.path.join("clouds","cloud5.png")).convert_alpha()
+        
         ## resize all to 100,100
         for i in Zviewer.images.keys():
             if "player" in i:
@@ -1306,7 +1319,7 @@ class Zviewer(object):
 
     def prepare_sounds(self):
         # music
-        Zviewer.shot = pygame.mixer.Sound(os.path.join("data","novashot.wav"))
+        Zviewer.shot = pygame.mixer.Sound(os.path.join("sounds","novashot.wav"))
 
 
     def paint(self):
@@ -1333,6 +1346,7 @@ class Zviewer(object):
         Rocket_Enemy.groups = self.allgroup, self.rocketenemygroup
         SuperRocket.groups = self.allgroup, self.rocketgroup
         Mine.groups = self.allgroup , self.minegroup 
+        Super_Enemy_Rocket.groups = self.allgroup , self.rocketenemygroup
         Cloud.groups = self.allgroup, self.cloudgroup
         Ammo.groups  = self.allgroup, self.powerupsgroup
         Money.groups = self.allgroup, self.powerupsgroup
@@ -1362,14 +1376,20 @@ class Zviewer(object):
         #for _ in range(2000):
         #    Money()
 
+
+        # put random clouds in the sky
+        
+        for c in range(200):
+            Cloud(pos=pygame.math.Vector2(random.randint(0, self.world_width), -random.randint(0, self.world_heigth)))
+
         for y, line in enumerate(Zviewer.world):
             for x, char in enumerate(line):
                 #Terrain("moon")#,pos=pygame.math.Vector2(x * 200, -y * 200))
 
-                if char == "c":
-                    Cloud(pos=pygame.math.Vector2(x*200, -y*200))
+                #if char == "c":
+                #    Cloud(pos=pygame.math.Vector2(x*200, -y*200))
 
-                elif char == "#":
+                if char == "#":
                     Wall(pos=pygame.math.Vector2(x*200, -y*200))
 
                 elif char == "m":
@@ -1382,6 +1402,8 @@ class Zviewer(object):
                 elif char == ".":
                     if random.random() < 0.3:
                         Money(pos=pygame.math.Vector2(x*200, -y*200))
+
+
 
 
     def superschuss(self, player):
@@ -1497,7 +1519,7 @@ class Zviewer(object):
                     #   self.player2.switch()
 
                     if event.key == pygame.K_z:
-                        #Zombie()
+                        Zombie_Boss()
                         #Cloud()
                         #Mine()
                         Explosion2(pos=pygame.math.Vector2(400,-200))
@@ -1590,7 +1612,7 @@ class Zviewer(object):
 
 
             for sprite in self.allgroup:
-                if sprite.number == 0:
+                if sprite.number == 0 :
                     continue # not for playerw
                 sprite.pos += -v
 
@@ -1646,11 +1668,21 @@ class Zviewer(object):
             for p in self.playergroup:
                 crashgroup = pygame.sprite.spritecollide(p, self.minegroup,
                              False, pygame.sprite.collide_rect)
-                for m in crashgroup:
+                for m in crashgroup :
                     print("bomb collided!")
-                    p.hitpoints -= m.damage
-                    m.explode()
+                    Explosion2(pos=pygame.math.Vector2(m.pos.x,m.pos.y))
+                    p.hitpoints -= m.damage + e.damage
+                    m.kill()
                     
+            # --------- collision detection between rocket and mines -----
+            for r in self.rocketgroup:
+                crashgroup = pygame.sprite.spritecollide(r, self.minegroup,
+                             False, pygame.sprite.collide_rect)
+                for m in crashgroup:
+                    #print("bomb collided!")
+                    Explosion2(pos=pygame.math.Vector2(m.pos.x,m.pos.y))
+                    m.kill()
+                    r.kill()
                         
               
 
@@ -2003,4 +2035,3 @@ class Zviewer(object):
 
 if __name__ == '__main__':
     Zviewer(1430,800).run() # try Zviewer(800,600).run()
-
