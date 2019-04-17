@@ -1589,46 +1589,43 @@ class Zviewer(object):
             # ---- movement for player1 ----
             moving = False
             #vel1 = 10
-            for sprite in self.allgroup:
-                if sprite.number == 0:
-                    continue
                 #if sprite.pos.x > 0 and sprite.pos.x < Zviewer.world_width:
                 #    if sprite.pos.y > 0 and sprite.pos.x < Zviewer.world_heigth:
                         
-				if pressed_keys[pygame.K_a]:
-					self.player1.rotate(5)
-					moving = False
-				if pressed_keys[pygame.K_d]:
-					self.player1.rotate(-5)
-					moving = False
-				if pressed_keys[pygame.K_w]:
-					# forward
-					vel1 = 15
-					moving = True
+			if pressed_keys[pygame.K_a]:
+				self.player1.rotate(5)
+				moving = False
+			if pressed_keys[pygame.K_d]:
+				self.player1.rotate(-5)
+				moving = False
+			if pressed_keys[pygame.K_w]:
+				# forward
+				vel1 = 15
+				moving = True
 
-				if pressed_keys[pygame.K_s]:
-					vel1 = -15
-					moving = True
+			if pressed_keys[pygame.K_s]:
+				vel1 = -15
+				moving = True
 
-				if not moving:
-					vel1 *= 0.9
-				v = pygame.math.Vector2(vel1,0)
-				v.rotate_ip(self.player1.angle)
-				#self.player1.move += v
+			if not moving:
+				vel1 *= 0.9
+			v = pygame.math.Vector2(vel1,0)
+			v.rotate_ip(self.player1.angle)
+			#self.player1.move += v
 
-				#### --- update for all sprites ------#####
-				self.allgroup.update(seconds)
+			#### --- update for all sprites ------#####
+			self.allgroup.update(seconds)
 
 
-				for sprite in self.allgroup:
-					
-					if sprite.__class__.__name__ == "Cloud":
-						print(" divide by i +1", sprite.i)
-						sprite.pos += v / (sprite.i + 1) 
-					   
-					if sprite.number == 0 :
-						continue # not for playerw
-					sprite.pos += -v
+			for sprite in self.allgroup:
+				
+				if sprite.__class__.__name__ == "Cloud":
+					print(" divide by i +1", sprite.i)
+					sprite.pos += v / (sprite.i + 1) 
+				   
+				if sprite.number == 0 :
+					continue # not for playerw
+				sprite.pos += -v
 
 
 
