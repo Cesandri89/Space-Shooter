@@ -503,11 +503,12 @@ class Cloud(VectorSprite):
     def _overwrite_parameters(self):
         self.speed = 100
         self._layer = 0
-        self.images = ["cloud1","cloud2","cloud3","cloud4","cloud5"]
+        self.images = ["cloud1","cloud2","cloud3","cloud4","cloud5","cloud6","cloud7"]
         
     def create_image(self):
         
-        self.image = Zviewer.images[random.choice(self.images)]
+        self.i = random.randint(0, len(self.images)-1)
+        self.image = Zviewer.images[self.images[self.i]]
         #pygame.draw.ellipse(self.image,(202,198,190),[22,22,138,58],0)
         #pygame.draw.ellipse(self.image,(202,198,190),[30,16,64,50],0)
         #pygame.draw.ellipse(self.image,(202,198,190),[78,16,98,64],0)
@@ -1206,7 +1207,7 @@ class Zviewer(object):
         self.screen = pygame.display.set_mode((self.width, self.height), pygame.DOUBLEBUF)
         #self.background = pygame.image.load("sky.png")
         self.background = pygame.Surface(self.screen.get_size()).convert()
-        self.background.fill((200,200,240))
+        self.background.fill((97,216,255))
         self.menu_background = pygame.image.load("menu_sky.png").convert_alpha()
         #self.background.fill((255,255,255)) # fill background white
         self.clock = pygame.time.Clock()
@@ -1298,6 +1299,8 @@ class Zviewer(object):
         Zviewer.images["cloud3"] = pygame.image.load(os.path.join("clouds","cloud3.png")).convert_alpha()
         Zviewer.images["cloud4"] = pygame.image.load(os.path.join("clouds","cloud4.png")).convert_alpha()
         Zviewer.images["cloud5"] = pygame.image.load(os.path.join("clouds","cloud5.png")).convert_alpha()
+        Zviewer.images["cloud6"] = pygame.image.load(os.path.join("clouds","cloud6.png")).convert_alpha()
+        Zviewer.images["cloud7"] = pygame.image.load(os.path.join("clouds","cloud7.png")).convert_alpha()
         
         ## resize all to 100,100
         for i in Zviewer.images.keys():
@@ -1389,10 +1392,10 @@ class Zviewer(object):
                 #if char == "c":
                 #    Cloud(pos=pygame.math.Vector2(x*200, -y*200))
 
-                if char == "#":
-                    Wall(pos=pygame.math.Vector2(x*200, -y*200))
+                #if char == "#":
+                #    Wall(pos=pygame.math.Vector2(x*200, -y*200))
 
-                elif char == "m":
+                if char == "m":
                     pass
                     #Terrain(pos=pygame.math.Vector2(x * 200 , -y * 200))
 
@@ -1402,7 +1405,7 @@ class Zviewer(object):
                 elif char == ".":
                     if random.random() < 0.3:
                         Money(pos=pygame.math.Vector2(x*200, -y*200))
-
+                
 
 
 
@@ -1586,35 +1589,46 @@ class Zviewer(object):
             # ---- movement for player1 ----
             moving = False
             #vel1 = 10
-            if pressed_keys[pygame.K_a]:
-                self.player1.rotate(5)
-                moving = False
-            if pressed_keys[pygame.K_d]:
-                self.player1.rotate(-5)
-                moving = False
-            if pressed_keys[pygame.K_w]:
-                # forward
-                vel1 = 15
-                moving = True
-
-            if pressed_keys[pygame.K_s]:
-                vel1 = -15
-                moving = True
-
-            if not moving:
-                vel1 *= 0.9
-            v = pygame.math.Vector2(vel1,0)
-            v.rotate_ip(self.player1.angle)
-            #self.player1.move += v
-
-            #### --- update for all sprites ------#####
-            self.allgroup.update(seconds)
-
-
             for sprite in self.allgroup:
-                if sprite.number == 0 :
-                    continue # not for playerw
-                sprite.pos += -v
+                if sprite.number == 0:
+                    continue
+                #if sprite.pos.x > 0 and sprite.pos.x < Zviewer.world_width:
+                #    if sprite.pos.y > 0 and sprite.pos.x < Zviewer.world_heigth:
+                        
+				if pressed_keys[pygame.K_a]:
+					self.player1.rotate(5)
+					moving = False
+				if pressed_keys[pygame.K_d]:
+					self.player1.rotate(-5)
+					moving = False
+				if pressed_keys[pygame.K_w]:
+					# forward
+					vel1 = 15
+					moving = True
+
+				if pressed_keys[pygame.K_s]:
+					vel1 = -15
+					moving = True
+
+				if not moving:
+					vel1 *= 0.9
+				v = pygame.math.Vector2(vel1,0)
+				v.rotate_ip(self.player1.angle)
+				#self.player1.move += v
+
+				#### --- update for all sprites ------#####
+				self.allgroup.update(seconds)
+
+
+				for sprite in self.allgroup:
+					
+					if sprite.__class__.__name__ == "Cloud":
+						print(" divide by i +1", sprite.i)
+						sprite.pos += v / (sprite.i + 1) 
+					   
+					if sprite.number == 0 :
+						continue # not for playerw
+					sprite.pos += -v
 
 
 
